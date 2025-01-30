@@ -1,17 +1,26 @@
-package org.spring.ch1.v2;
+package org.spring.ch1.v4;
 
 import org.spring.User;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 
 /**
- * v2. 메서드 추출을 통해 관심사 분리
+ * v4. 합성과 인터페이스를 통해 관심사 분리
  */
 
-public class UserDaoV2 {
+public class UserDaoV4 {
+
+    private final ConnectionMaker connectionMaker;
+
+    public UserDaoV4() {
+        this.connectionMaker = new NConnectionMaker();
+    }
+
     public void add(User user) throws Exception {
-        Connection connection = getConnection();
+        Connection connection = connectionMaker.makeConnection();
         PreparedStatement pstmt = connection.prepareStatement("insert into users(id, name, password) values(?,?,?)");
         pstmt.setString(1, user.getId());
         pstmt.setString(2, user.getName());
@@ -23,7 +32,7 @@ public class UserDaoV2 {
     }
 
     public User get(String id) throws Exception {
-        Connection connection = getConnection();
+        Connection connection = connectionMaker.makeConnection();
         PreparedStatement pstmt = connection.prepareStatement("select * from users where id = ?");
         pstmt.setString(1, id);
 
@@ -39,12 +48,6 @@ public class UserDaoV2 {
         connection.close();
 
         return user;
-    }
-
-    private Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("org.h2.Driver");
-        Connection connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/toby", "sa", "");
-        return connection;
     }
 }
 

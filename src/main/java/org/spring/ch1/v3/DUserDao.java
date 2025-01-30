@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class DUserDao extends UserDaoV3{
     @Override
-    public Connection getConnection() throws ClassNotFoundException, SQLException {
+    protected Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("org.h2.Driver");
         Connection connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/toby", "sa", "");
         return connection;

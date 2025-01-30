@@ -6,7 +6,7 @@ import java.sql.*;
 
 
 /**
- * 메서드 추출을 통해 관심사 분리
+ * v3. 상속을 통해 관심사를 계층으로 분리
  */
 
 public abstract class UserDaoV3 {
@@ -41,7 +41,7 @@ public abstract class UserDaoV3 {
         return user;
     }
 
-    public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
+    protected abstract Connection getConnection() throws ClassNotFoundException, SQLException;
 }
 
 

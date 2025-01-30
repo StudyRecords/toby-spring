@@ -6,7 +6,7 @@ import java.sql.*;
 
 
 /**
- * 초난감 UserDao
+ * v1. 초난감 UserDao
  *  중복되는 코드 많음
  *  유지보수와 변경에 취약
  */
