@@ -1,23 +1,26 @@
-package org.spring.ch1.v4;
+package org.spring.ch1.v5;
 
 import org.spring.User;
+import org.spring.ch1.v4.ConnectionMaker;
+import org.spring.ch1.v4.NConnectionMaker;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+
 /**
- * v4. 합성과 인터페이스를 통해 관심사 분리
+ * v5. UserDao 클라이언트 객체에게
+ *      ConnectionMaker 구현체를 결정하고 관계를 맺는 관심사를 나눠준다. (관심사 분리)
  */
 
-public class UserDaoV4 {
+public class UserDaoV5 {
 
     private final ConnectionMaker connectionMaker;
 
-    public UserDaoV4() {
-        this.connectionMaker = new NConnectionMaker();
+    public UserDaoV5(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
     }
-
 
     public void add(User user) throws Exception {
         Connection connection = connectionMaker.makeConnection();
