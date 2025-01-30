@@ -1,4 +1,4 @@
-package org.spring.ch1.v2;
+package org.spring.ch1.v3;
 
 import org.spring.User;
 
@@ -9,7 +9,7 @@ import java.sql.*;
  * 메서드 추출을 통해 관심사 분리
  */
 
-public class UserDaoV2 {
+public abstract class UserDaoV3 {
     public void add(User user) throws Exception {
         Connection connection = getConnection();
         PreparedStatement pstmt = connection.prepareStatement("insert into users(id, name, password) values(?,?,?)");
@@ -41,11 +41,7 @@ public class UserDaoV2 {
         return user;
     }
 
-    private Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("org.h2.Driver");
-        Connection connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/toby", "sa", "");
-        return connection;
-    }
+    public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
 }
 
 
