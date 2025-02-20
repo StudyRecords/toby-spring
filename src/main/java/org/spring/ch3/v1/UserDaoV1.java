@@ -42,4 +42,3 @@ public class UserDaoV1 {
         return count;
     }
 }
-
