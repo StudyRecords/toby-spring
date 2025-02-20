@@ -1,13 +1,13 @@
-package org.spring.dbConnection;
+package org.spring.ch1.dbConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class CountingConnectionMaker implements ConnectionMaker{
+public class CountingConnectionMaker implements ConnectionMaker {
     private final ConnectionMaker realConnectionMaker;
     private int cnt = 0;
 
-    public CountingConnectionMaker(ConnectionMaker connectionMaker){
+    public CountingConnectionMaker(ConnectionMaker connectionMaker) {
         this.realConnectionMaker = connectionMaker;
     }
 
@@ -17,7 +17,7 @@ public class CountingConnectionMaker implements ConnectionMaker{
         return realConnectionMaker.makeConnection();
     }
 
-    public int getCount(){
+    public int getCount() {
         return cnt;
     }
 }

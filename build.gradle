@@ -9,10 +9,6 @@ repositories {
     mavenCentral()
 }
 
-tasks.withType(JavaExec) {
-    jvmArgs '--add-opens', 'java.base/java.lang=ALL-UNNAMED'
-}
-
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'

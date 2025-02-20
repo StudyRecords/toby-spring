@@ -1,12 +1,12 @@
-package org.spring.dbConnection;
+package org.spring.ch3.dataSource;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class ProductConnectionMaker implements ConnectionMaker {
+public class DDataSource implements DataSource {
     @Override
-    public Connection makeConnection() throws ClassNotFoundException, SQLException {
+    public Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("org.h2.Driver");
         return DriverManager.getConnection("jdbc:h2:tcp://localhost/~/toby", "sa", "");
     }

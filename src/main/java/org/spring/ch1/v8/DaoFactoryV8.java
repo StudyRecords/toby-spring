@@ -11,10 +11,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DaoFactoryV8 {
 
-//    @Bean
-//    public UserDaoV8 userDaoV8() {
-//        return new UserDaoV8();
-//    }
+    @Bean
+    public UserDaoV8 userDaoV8() {
+        return new UserDaoV8();
+    }
 
     @Bean
     public ConnectionMaker connectionMaker() {

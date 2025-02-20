@@ -1,4 +1,4 @@
-package org.spring.dbConnection;
+package org.spring.ch1.dbConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;

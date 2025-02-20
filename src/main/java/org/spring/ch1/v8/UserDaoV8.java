@@ -2,6 +2,7 @@ package org.spring.ch1.v8;
 
 import org.spring.User;
 import org.spring.ch1.v4.ConnectionMaker;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.sql.Connection;
@@ -18,7 +19,7 @@ public class UserDaoV8 {
 
     public UserDaoV8() {
         // 의존관계 검색(DL) 방식 : 직접 컨테이너에서 빈을 검색해서 가져온다!
-        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(DaoFactoryV8.class);
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(DaoFactoryV8.class);
         this.connectionMaker = applicationContext.getBean("connectionMaker", ConnectionMaker.class);
     }
 
