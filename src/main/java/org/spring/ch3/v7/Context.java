@@ -21,41 +21,39 @@ public class Context {
 
 
     public void deleteAll() {
-        // local 클래스
-        class DeleteAllStrategy implements StatementStrategy {
+        // 익명 내부 클래스 사용
+        StatementStrategy deleteAllStrategy = new StatementStrategy() {
             @Override
             public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
                 return connection.prepareStatement("delete from users");
             }
-        }
-
-        StatementStrategy deleteAllStrategy = new DeleteAllStrategy();
+        };
         jdbcContextWithStatementStrategy(deleteAllStrategy);
     }
 
     public void add(final User user) {
-        // local 클래스
-        class AddStatementStrategy implements StatementStrategy {
-//            private final User user;
+        // 익명 내부 클래스 사용 (인터페이스를 통해 선언)
+//        StatementStrategy addStatementStrategy = new StatementStrategy() {
+//            public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
+//                PreparedStatement pstmt = connection.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
+//                pstmt.setString(1, user.getId());
+//                pstmt.setString(2, user.getName());
+//                pstmt.setString(3, user.getPassword());
 //
-//            public AddStatementStrategy(User user) {
-//                this.user = user;
+//                return pstmt;
 //            }
+//        };
 
-            // local 클래스는 자신이 선언된 곳의 정보에 접근할 수 있다.
-            // 생성자와 인스턴스 변수를 통해 User를 넘기지 않고 메서드 내부에서 바로 접근이 가능하다.
-            @Override
-            public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
-                PreparedStatement pstmt = connection.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
-                pstmt.setString(1, user.getId());
-                pstmt.setString(2, user.getName());
-                pstmt.setString(3, user.getPassword());
+        // 익명 내부 클래스 사용 (람다 사용)
+        StatementStrategy addStatementStrategy = connection -> {
+            PreparedStatement pstmt = connection.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
+            pstmt.setString(1, user.getId());
+            pstmt.setString(2, user.getName());
+            pstmt.setString(3, user.getPassword());
 
-                return pstmt;
-            }
-        }
+            return pstmt;
+        };
 
-        StatementStrategy addStatementStrategy = new AddStatementStrategy();
         jdbcContextWithStatementStrategy(addStatementStrategy);
     }
 
