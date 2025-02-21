@@ -11,11 +11,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class Context {
-    private static final Log log = LogFactory.getLog(Context.class);
+// UserDaoV7는 Client와 Context 역할을 모두 수행한다.
+public class UserDaoV7 {
+    private static final Log log = LogFactory.getLog(UserDaoV7.class);
     private final DataSource dataSource;
 
-    public Context(DataSource dataSource) {
+    public UserDaoV7(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
