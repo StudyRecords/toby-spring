@@ -1,20 +1,15 @@
-package org.spring.ch3.v5;
+package org.spring.ch3.v6;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.spring.ch3.dataSource.DataSource;
-import org.spring.ch3.v5.strategy.DeleteAllStrategy;
-import org.spring.ch3.v5.strategy.GetCountStrategy;
-import org.spring.ch3.v5.strategy.StatementStrategy;
+import org.spring.ch3.v6.strategy.StatementStrategy;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * v5. 전략패턴을 통해 코드 분리
- */
 public class Context {
     private static final Log log = LogFactory.getLog(Context.class);
     private final DataSource dataSource;
@@ -23,24 +18,25 @@ public class Context {
         this.dataSource = dataSource;
     }
 
-    public void deleteAll() throws Exception {
+    public void jdbcContextWithStatementStrategy(StatementStrategy strategy) {
         Connection connection = null;
         PreparedStatement pstmt = null;
 
         try {
             connection = dataSource.getConnection();
-            StatementStrategy strategy = new DeleteAllStrategy();
             pstmt = strategy.makePreparedStatement(connection);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            log.info("[deleteAll] exception = " + e.getMessage());
+            log.info("[deleteAll] SQLException = " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            log.info("[deleteAll] ClassNotFoundException = " + e.getMessage());
         } finally {
             closePreparedStatement(pstmt);
             closeConnection(connection);
         }
     }
 
-    public int getCount() throws Exception {
+    public int lookupJdbcContextWithStatementStrategy(StatementStrategy strategy)  {
         Connection connection = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -48,7 +44,6 @@ public class Context {
 
         try {
             connection = dataSource.getConnection();
-            StatementStrategy strategy = new GetCountStrategy();
             pstmt = strategy.makePreparedStatement(connection);
             rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -58,7 +53,9 @@ public class Context {
                 throw new SQLException("반환된 결과가 없습니다.");
             }
         } catch (SQLException e) {
-            log.info("[getCount] exception = " + e.getMessage());
+            log.info("[getCount] SQLException = " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            log.info("[getCount] ClassNotFoundException = " + e.getMessage());
         } finally {
             // close는 자원이 만들어진 순서의 반대로 하는 것이 원칙이다!!!
             closeResultSet(rs);

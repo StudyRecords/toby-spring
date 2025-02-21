@@ -9,6 +9,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * v4. 템플릿 메서드 패턴을 통해 코드 분리
+ */
 public abstract class UserDaoV4 {
 
     private static final Log log = LogFactory.getLog(UserDaoV4.class);
@@ -24,7 +27,7 @@ public abstract class UserDaoV4 {
 
         try {
             connection = dataSource.getConnection();
-            pstmt = makeStatement(connection, "delete from users");
+            pstmt = makeStatement(connection);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             log.info("[deleteAll] exception = " + e.getMessage());
