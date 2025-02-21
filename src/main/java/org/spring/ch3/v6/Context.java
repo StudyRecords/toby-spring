@@ -18,6 +18,8 @@ public class Context {
         this.dataSource = dataSource;
     }
 
+    // 이제 다른 JDBC 작업도 수행할 수 있는 공유 가능 메서드가 됨
+    // deleteAll과 add 작업이 해당 메서드를 공유하여 사용
     public void jdbcContextWithStatementStrategy(StatementStrategy strategy) {
         Connection connection = null;
         PreparedStatement pstmt = null;
