@@ -1,63 +1,27 @@
-package org.spring.ch3.v7;
+package org.spring.ch3.v8;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.spring.User;
 import org.spring.ch3.dataSource.DataSource;
-import org.spring.ch3.v7.strategy.StatementStrategy;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+
 /**
- * Clientn + Context 역할 수행 (각각을 수행하는 메서드로 나뉘어있음)
+ * Context 역할 수행
  */
-public class UserDaoV7 {
-    private static final Log log = LogFactory.getLog(UserDaoV7.class);
+public class JdbcContext {
+    private static final Log log = LogFactory.getLog(JdbcContext.class);
     private final DataSource dataSource;
 
-    public UserDaoV7(DataSource dataSource) {
+    public JdbcContext(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-
-    /**
-     * Client 역할 수행
-     */
-    public void deleteAll() {
-        // 익명 내부 클래스 사용 (인터페이스를 통해 선언)
-        StatementStrategy deleteAllStrategy = new StatementStrategy() {
-            @Override
-            public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
-                return connection.prepareStatement("delete from users");
-            }
-        };
-        jdbcContextWithStatementStrategy(deleteAllStrategy);
-    }
-
-    /**
-     * Client 역할 수행
-     */
-    public void add(final User user) {
-        // 익명 내부 클래스 사용 (람다 통해 선언)
-        StatementStrategy addStatementStrategy = connection -> {
-            PreparedStatement pstmt = connection.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
-            pstmt.setString(1, user.getId());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getPassword());
-
-            return pstmt;
-        };
-
-        jdbcContextWithStatementStrategy(addStatementStrategy);
-    }
-
-    /**
-     * Context 역할 수행
-     */
-    public void jdbcContextWithStatementStrategy(StatementStrategy strategy) {
+    public void workWithStatementStrategy(StatementStrategy strategy) {
         Connection connection = null;
         PreparedStatement pstmt = null;
 
@@ -75,10 +39,7 @@ public class UserDaoV7 {
         }
     }
 
-    /**
-     * Context 역할 수행
-     */
-    public int lookupJdbcContextWithStatementStrategy(StatementStrategy strategy) {
+    public int lookupWorkWithStatementStrategy(StatementStrategy strategy) {
         Connection connection = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
