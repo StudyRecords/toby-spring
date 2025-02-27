@@ -22,15 +22,8 @@ public class JdbcContext {
     }
 
     public void executeSql(String query) {
-//        StatementStrategy deleteAllStrategy = new StatementStrategy() {
-//            @Override
-//            public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
-//                return connection.prepareStatement(query);
-//            }
-//        };
-
-        StatementStrategy deleteAllStrategy = connection -> connection.prepareStatement(query);
-
+        StatementStrategy deleteAllStrategy = connection ->
+                connection.prepareStatement(query);
         workWithStatementStrategy(deleteAllStrategy);
     }
 
@@ -38,6 +31,17 @@ public class JdbcContext {
         StatementStrategy getCountStatementStrategy = connection ->
                 connection.prepareStatement(query);
         return lookupWorkWithStatementStrategy(getCountStatementStrategy);
+    }
+
+    public void executeUpdate(String updateQuery, Object... objects) {
+        StatementStrategy addStatementStrategy = connection -> {
+            PreparedStatement pstmt = connection.prepareStatement(updateQuery);
+            for (int i = 0; i < objects.length; i++) {
+                pstmt.setObject(i + 1, objects[i]);
+            }
+            return pstmt;
+        };
+        workWithStatementStrategy(addStatementStrategy);
     }
 
     public void workWithStatementStrategy(StatementStrategy strategy) {
@@ -116,17 +120,5 @@ public class JdbcContext {
                 log.info("[deleteAll] resultSet close error");
             }
         }
-    }
-
-
-    public void executeUpdate(String updateQuery, Object... objects) {
-        StatementStrategy addStatementStrategy = connection -> {
-            PreparedStatement pstmt = connection.prepareStatement(updateQuery);
-            for (int i = 0; i < objects.length; i++) {
-                pstmt.setObject(i + 1, objects[i]);
-            }
-            return pstmt;
-        };
-        workWithStatementStrategy(addStatementStrategy);
     }
 }

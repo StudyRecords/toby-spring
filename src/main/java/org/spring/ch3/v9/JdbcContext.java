@@ -19,21 +19,21 @@ public class JdbcContext {
     /**
      * 생성자 주입 시
      */
-//    private final DataSource dataSource;
-//
-//    public JdbcContext(DataSource dataSource) {
-//        this.dataSource = dataSource;
-//    }
+    private final DataSource dataSource;
+
+    public JdbcContext(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     /**
      * 수정자 주입 시
      */
-    private DataSource dataSource;
-    public JdbcContext() {
-    }
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+//    private DataSource dataSource;
+//    public JdbcContext() {
+//    }
+//    public void setDataSource(DataSource dataSource) {
+//        this.dataSource = dataSource;
+//    }
 
 
     public void workWithStatementStrategy(StatementStrategy strategy) {

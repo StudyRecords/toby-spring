@@ -3,13 +3,12 @@ package org.spring.ch3.v9;
 import org.spring.User;
 import org.spring.ch3.dataSource.DDataSource;
 import org.spring.ch3.dataSource.DataSource;
-import org.spring.ch3.v10.UserDaoV10;
 
 public class Main {
     public static void main(String[] args) {
         DataSource dataSource = new DDataSource();
-        UserDaoV9 userDaoV9 = new UserDaoV9();
-        userDaoV9.setDataSource(dataSource);
+        UserDaoV9 userDaoV9 = new UserDaoV9(dataSource);
+//        userDaoV9.setDataSource(dataSource);
 
         User user = new User("123L", "youngsun", "1234");
         userDaoV9.add(user);
