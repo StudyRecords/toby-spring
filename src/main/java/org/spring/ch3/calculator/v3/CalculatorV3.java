@@ -45,14 +45,14 @@ public class CalculatorV3 implements Calculator {
             br = new BufferedReader(new FileReader(filePath));
             return callback.calculateWithBR(br);
         } catch (IOException e) {
-            log.info("[template] exception message = " + e.getMessage());
+            log.info("[fileReadTemplate] exception message = " + e.getMessage());
             throw e;
         } finally {
             if (br != null) {
                 try {
                     br.close();
                 } catch (IOException e) {
-                    log.info("[template] br.close() exception message = " + e.getMessage());
+                    log.info("[fileReadTemplate] br.close() exception message = " + e.getMessage());
                 }
             }
         }
