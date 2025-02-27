@@ -1,7 +1,5 @@
 package org.spring.ch3.calculator.v1;
 
-import org.spring.ch3.calculator.Calculator;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;

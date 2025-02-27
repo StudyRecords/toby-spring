@@ -1,4 +1,4 @@
-package org.spring.ch3.calculator;
+package org.spring.ch3.calculator.v1;
 
 import java.io.IOException;
 
