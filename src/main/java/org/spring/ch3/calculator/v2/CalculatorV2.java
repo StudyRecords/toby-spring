@@ -32,7 +32,32 @@ public class CalculatorV2 implements Calculator {
                 try {
                     br.close();
                 } catch (IOException e) {
-                    log.info("[calcSum] exception message = " + e.getMessage());
+                    log.info("[calcSum] br.close() exception message = " + e.getMessage());
+                }
+            }
+
+        }
+    }
+
+    public int calcMultiply(String filePath) throws IOException {
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(filePath));
+            int sum = 0;
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                sum *= Integer.valueOf(line);
+            }
+            return sum;
+        } catch (IOException e) {
+            log.info("[calcMultiply] exception message = " + e.getMessage());
+            throw e;
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    log.info("[calcMultiply] br.close() exception message = " + e.getMessage());
                 }
             }
 
