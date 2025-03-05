@@ -20,6 +20,8 @@ dependencies {
     implementation 'org.springframework:spring-beans:6.1.2'
     implementation 'org.springframework:spring-context:6.1.2'
     implementation 'org.springframework:spring-expression:6.1.2'
+    implementation 'org.springframework:spring-jdbc:6.1.2'
+    implementation 'org.springframework:spring-tx:6.1.2' // 트랜잭션 지원
 }
 
 test {

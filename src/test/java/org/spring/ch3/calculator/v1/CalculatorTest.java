@@ -77,3 +77,4 @@ class CalculatorTest {
         Assertions.assertEquals(result, "12345678910");
     }
 }
+
