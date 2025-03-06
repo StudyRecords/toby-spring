@@ -5,8 +5,10 @@ import org.junit.jupiter.api.*;
 import org.spring.User;
 import org.spring.ch4.independentDao.UserDao;
 import org.spring.ch4.jdbcTemplate.AppConfig;
+import org.spring.ch4.jdbcTemplate.DuplicateUserIdException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,6 +81,16 @@ public class UserDaoTest {
     void testDelete() {
         userDao.deleteAll();
         assertThat(userDao.getCount()).isEqualTo(0);
+    }
+
+    @Test
+    @Order(7)
+    void duplicateId(){
+        User user1 = new User("id", "name", "password");
+        User user2 = new User("id", "name2", "password2");
+        userDao.add(user1);
+        assertThatThrownBy(() -> userDao.add(user2))
+                .isInstanceOf(DuplicateUserIdException.class);
     }
 }
 
