@@ -45,6 +45,7 @@ public class UserDao {
         return jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
     }
 
+
     public Optional<User> getById(String id) {
         String query = "select * from users where id = ?";
 
