@@ -17,7 +17,7 @@ import java.util.List;
 @Repository
 public class UserDaoJdbc implements UserDao {
     private static final Log log = LogFactory.getLog(UserDaoJdbc.class);
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public UserDaoJdbc(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;

@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public class UserDao {
     private static final Log log = LogFactory.getLog(UserDao.class);
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public UserDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
