@@ -9,11 +9,16 @@ import org.spring.ch4.jdbcTemplate.DuplicateUserIdException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
+import org.springframework.jdbc.support.SQLExceptionTranslator;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,6 +36,7 @@ public class UserDaoTest {
         ApplicationContext ac = new AnnotationConfigApplicationContext(AppConfig.class);
         this.userDao = ac.getBean("userDao", UserDao.class);
         this.jdbcTemplate = ac.getBean("jdbcTemplate", JdbcTemplate.class);
+        userDao.deleteAll();
 
         jdbcTemplate.execute("INSERT INTO users (id, name, password) VALUES ('user1', '영선', 'pass123')");
         jdbcTemplate.execute("INSERT INTO users (id, name, password) VALUES ('user2', '서니', 'pass456')");
@@ -47,6 +53,7 @@ public class UserDaoTest {
     @Order(2)
     void testGetById_NotFound() {
         assertThatThrownBy(() -> userDao.getById("lkanvlk"))
+                .isInstanceOf(DataAccessException.class)
                 .isInstanceOf(EmptyResultDataAccessException.class)
                 .hasMessageContaining("조회된 행이 없음");
     }
@@ -85,12 +92,26 @@ public class UserDaoTest {
 
     @Test
     @Order(7)
-    void duplicateId(){
+    void duplicateId() {
         User user1 = new User("id", "name", "password");
         User user2 = new User("id", "name2", "password2");
         userDao.add(user1);
         assertThatThrownBy(() -> userDao.add(user2))
                 .isInstanceOf(DuplicateUserIdException.class);
+    }
+
+    @Test
+    @Order(8)
+    void duplicateIdRoot() {
+        User user = new User("id", "name", "password");
+        try {
+            userDao.add(user);
+        } catch (DuplicateUserIdException e) {
+            SQLException sqlException = (SQLException) e.getRootCause();
+            SQLExceptionTranslator set = new SQLErrorCodeSQLExceptionTranslator(Objects.requireNonNull(this.jdbcTemplate.getDataSource()));
+            // root Exception 이 SQLException 에서 직접 DuplicateKeyException 으로 전환하는 기능을 테스트
+            assertThat(set.translate(null, null, sqlException)).isInstanceOf(DuplicateKeyException.class);
+        }
     }
 }
 
