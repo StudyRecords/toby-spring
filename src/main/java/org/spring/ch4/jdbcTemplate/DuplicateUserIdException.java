@@ -1,7 +1,10 @@
 package org.spring.ch4.jdbcTemplate;
 
-public class DuplicateUserIdException extends RuntimeException {
-    public DuplicateUserIdException(Throwable cause) {
-        super(cause);
+import org.springframework.dao.DataAccessException;
+
+public class DuplicateUserIdException extends DataAccessException {
+
+    public DuplicateUserIdException(String msg, Throwable cause) {
+        super(msg, cause);
     }
 }

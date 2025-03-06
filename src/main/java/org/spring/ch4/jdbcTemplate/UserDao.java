@@ -33,7 +33,7 @@ public class UserDao {
             jdbcTemplate.update(command, user.getId(), user.getName(), user.getPassword());
         } catch (DataAccessException e) {       // 언체크 예외 (RuntimeException)
             if ("23505".equals(((SQLException) e.getCause()).getSQLState())) {
-                throw new DuplicateUserIdException();       // 체크 예외
+                throw new DuplicateUserIdException(e.getMessage(), e.getCause());       // 언체크 예외
             } else {
                 throw e;
             }
