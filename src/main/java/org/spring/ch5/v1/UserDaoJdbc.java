@@ -97,4 +97,19 @@ public class UserDaoJdbc implements UserDao {
             throw e;
         }
     }
+
+    @Override
+    public int update(User user) {
+        String command = "update users set name = ?, password = ?, level = ?, login = ?, recommend = ? where id = ?;";
+        return jdbcTemplate.update(
+                command,
+                user.getName(),
+                user.getPassword(),
+                user.getLevel().name(),
+                user.getLogin(),
+                user.getRecommend(),
+                user.getId()
+        );
+    }
+
 }

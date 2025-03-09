@@ -116,5 +116,33 @@ public class UserDaoTestCh5 {
             assertThat(set.translate(null, null, sqlException)).isInstanceOf(DuplicateKeyException.class);
         }
     }
+
+    @Test
+    @Order(9)
+    void update(){
+        userDao.deleteAll();
+
+        // given
+        // fixture 오브젝트 : 테스트에서 일관된 환경을 제공하기 위해 미리 준비된 객체
+        //                 테스트가 항상 같은 조건에서 실행되도록 보장하는 역할을 한다.
+        User user = new User("user1", "영선", "pass123", BASIC, 0, 0);
+        User user2 = new User("user2", "영선", "pass123", BASIC, 0, 0);
+        userDao.add(user);
+        userDao.add(user2);
+
+        // when
+        user.setName("서니");
+        user.setPassword("pass010323");
+        user.setLevel(SILVER);
+        user.setLogin(77);
+        user.setRecommend(11);
+
+        int updatedRows = userDao.update(user);
+        assertThat(updatedRows).isEqualTo(1);
+
+        // then
+        User updatedUser = userDao.getById(user.getId());
+        assertThat(user).isEqualTo(updatedUser);
+    }
 }
 
