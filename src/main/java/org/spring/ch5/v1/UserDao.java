@@ -1,7 +1,5 @@
 package org.spring.ch5.v1;
 
-import org.spring.ch4.User;
-
 import java.util.List;
 
 public interface UserDao {

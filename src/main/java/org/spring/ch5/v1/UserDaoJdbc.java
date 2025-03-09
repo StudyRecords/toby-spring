@@ -2,7 +2,6 @@ package org.spring.ch5.v1;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.spring.ch4.User;
 import org.spring.ch4.jdbcTemplate.DuplicateUserIdException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -32,8 +31,9 @@ public class UserDaoJdbc implements UserDao {
     @Override
     public void add(User user) throws DuplicateUserIdException {
         try {
-            String command = "insert into users(id, name, password) values (?, ?, ?)";
-            jdbcTemplate.update(command, user.getId(), user.getName(), user.getPassword());
+            String command = "insert into users(id, name, password, level, login, recommend) values (?, ?, ?, ?, ?, ?)";
+            jdbcTemplate.update(command, user.getId(), user.getName(), user.getPassword(),
+                    user.getLevel().name(), user.getLogin(), user.getRecommend());
         } catch (DataAccessException e) {       // 언체크 예외 (RuntimeException)
             if ("23505".equals(((SQLException) e.getCause()).getSQLState())) {
                 throw new DuplicateUserIdException(e.getMessage(), e.getCause());       // 언체크 예외
@@ -49,7 +49,10 @@ public class UserDaoJdbc implements UserDao {
         RowMapper<User> rowMapper = (rs, rowNum) -> new User(
                 rs.getString("id"),
                 rs.getString("name"),
-                rs.getString("password")
+                rs.getString("password"),
+                Level.valueOf(rs.getString("level")),
+                rs.getInt("login"),
+                rs.getInt("recommend")
         );
         try {
             return jdbcTemplate.query(query, rowMapper);
@@ -73,7 +76,10 @@ public class UserDaoJdbc implements UserDao {
         RowMapper<User> rowMapper = (rs, rowNum) -> new User(
                 rs.getString("id"),
                 rs.getString("name"),
-                rs.getString("password")
+                rs.getString("password"),
+                Level.valueOf(rs.getString("level")),
+                rs.getInt("login"),
+                rs.getInt("recommend")
         );
 
         try {

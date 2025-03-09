@@ -1,5 +1,7 @@
 package org.spring.ch5.v1;
 
+import java.util.Objects;
+
 public class User {
     private String id;
     private String name;
@@ -7,6 +9,24 @@ public class User {
     private Level level;
     private int login;
     private int recommend;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return getLogin() == user.getLogin() &&
+                getRecommend() == user.getRecommend() &&
+                Objects.equals(getId(), user.getId()) &&
+                Objects.equals(getName(), user.getName()) &&
+                Objects.equals(getPassword(), user.getPassword()) &&
+                getLevel() == user.getLevel();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), getPassword(), getLevel(), getLogin(), getRecommend());
+    }
 
     public String getId() {
         return id;
