@@ -1,6 +1,6 @@
 package org.spring.ch1.v2;
 
-import org.spring.User;
+import org.spring.ch4.User;
 
 import java.sql.*;
 

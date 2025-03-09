@@ -1,5 +1,8 @@
 package org.spring.ch5.v1;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 public enum Level {
     BASIC(0, 0),
     SILVER(50, 0),
@@ -13,13 +16,21 @@ public enum Level {
         this.recommendNum = recommendNum;
     }
 
-    public static Level createLevel(int loginNum, int recommendNum){
-        for (Level level : values()) {
-            if (level.loginNum <= loginNum && level.recommendNum <= recommendNum){
-                return level;
-            }
-        }
-        return BASIC;
+    public static Level createLevel(int loginNum, int recommendNum) {
+        return Arrays.stream(values())
+                .sorted(Comparator.comparing(Level::getLoginNum)
+                        .thenComparing(Level::getRecommendNum)
+                        .reversed())
+                .filter(level -> level.getLoginNum() <= loginNum && level.getRecommendNum() <= recommendNum)
+                .findFirst()
+                .orElse(BASIC);
     }
 
+    public int getLoginNum() {
+        return loginNum;
+    }
+
+    public int getRecommendNum() {
+        return recommendNum;
+    }
 }

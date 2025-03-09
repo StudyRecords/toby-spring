@@ -1,6 +1,6 @@
 package org.spring.ch1.v7;
 
-import org.spring.User;
+import org.spring.ch4.User;
 import org.spring.ch1.v6.DaoFactory;
 import org.spring.ch1.v6.UserDaoV6;
 import org.springframework.context.ApplicationContext;

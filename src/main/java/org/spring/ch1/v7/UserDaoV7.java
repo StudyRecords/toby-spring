@@ -1,6 +1,6 @@
 package org.spring.ch1.v7;
 
-import org.spring.User;
+import org.spring.ch4.User;
 import org.spring.ch1.v4.ConnectionMaker;
 
 import java.sql.Connection;

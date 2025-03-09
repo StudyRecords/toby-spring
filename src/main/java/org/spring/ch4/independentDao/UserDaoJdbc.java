@@ -2,7 +2,7 @@ package org.spring.ch4.independentDao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.spring.User;
+import org.spring.ch4.User;
 import org.spring.ch4.jdbcTemplate.DuplicateUserIdException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;

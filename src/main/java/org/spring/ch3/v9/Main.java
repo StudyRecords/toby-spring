@@ -1,6 +1,6 @@
 package org.spring.ch3.v9;
 
-import org.spring.User;
+import org.spring.ch4.User;
 import org.spring.ch3.dataSource.DDataSource;
 import org.spring.ch3.dataSource.DataSource;
 

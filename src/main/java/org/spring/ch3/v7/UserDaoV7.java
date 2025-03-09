@@ -2,7 +2,7 @@ package org.spring.ch3.v7;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.spring.User;
+import org.spring.ch4.User;
 import org.spring.ch3.dataSource.DataSource;
 import org.spring.ch3.v7.strategy.StatementStrategy;
 

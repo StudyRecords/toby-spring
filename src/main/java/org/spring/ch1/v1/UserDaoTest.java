@@ -1,6 +1,6 @@
 package org.spring.ch1.v1;
 
-import org.spring.User;
+import org.spring.ch4.User;
 
 public class UserDaoTest {
     public static void main(String[] args) throws Exception {

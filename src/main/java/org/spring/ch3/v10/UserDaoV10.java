@@ -1,6 +1,6 @@
 package org.spring.ch3.v10;
 
-import org.spring.User;
+import org.spring.ch4.User;
 
 /**
  * v10. 콜백 재활용 적용!

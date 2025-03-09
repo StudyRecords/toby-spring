@@ -2,7 +2,6 @@ package org.spring.ch4;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
-import org.spring.User;
 import org.spring.ch4.independentDao.UserDao;
 import org.spring.ch4.jdbcTemplate.AppConfig;
 import org.spring.ch4.jdbcTemplate.DuplicateUserIdException;

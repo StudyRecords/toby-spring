@@ -1,6 +1,6 @@
 package org.spring.ch1.dbConnection;
 
-import org.spring.User;
+import org.spring.ch4.User;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class UserDaoConnectionCountingTest {

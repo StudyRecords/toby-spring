@@ -1,7 +1,6 @@
 package org.spring.ch1.v8;
 
-import org.spring.User;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.spring.ch4.User;
 
 /**
  * 의존관계 검색을 통해 매번 동일한 UserDao를 가져올 수 있다.

@@ -1,6 +1,6 @@
 package org.spring.ch4.independentDao;
 
-import org.spring.User;
+import org.spring.ch4.User;
 
 import java.util.List;
 

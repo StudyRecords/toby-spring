@@ -1,9 +1,7 @@
 package org.spring.ch1.v5;
 
-import org.spring.User;
-import org.spring.ch1.v1.UserDaoV1;
+import org.spring.ch4.User;
 import org.spring.ch1.v4.DConnectionMaker;
-import org.spring.ch1.v4.UserDaoV4;
 
 /**
  * UserDao의 클라이언트 객체

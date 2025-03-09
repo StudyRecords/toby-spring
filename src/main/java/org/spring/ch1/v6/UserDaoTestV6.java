@@ -1,8 +1,6 @@
 package org.spring.ch1.v6;
 
-import org.spring.User;
-import org.spring.ch1.v4.DConnectionMaker;
-import org.spring.ch1.v5.UserDaoV5;
+import org.spring.ch4.User;
 
 /**
  * UserDao의 클라이언트 객체 : '기능 테스트' 라는 관심사를 갖는다.

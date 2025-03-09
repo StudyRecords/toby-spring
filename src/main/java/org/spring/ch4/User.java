@@ -1,4 +1,4 @@
-package org.spring;
+package org.spring.ch4;
 
 public class User {
     String id;
