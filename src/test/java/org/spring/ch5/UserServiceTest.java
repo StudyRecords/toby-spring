@@ -21,6 +21,11 @@ public class UserServiceTest {
     private UserService userService;
     private List<User> users;
 
+    @BeforeEach
+    void init() {
+        userDao.deleteAll();
+    }
+
     @BeforeAll
     void setUp() {
         ApplicationContext ac = new AnnotationConfigApplicationContext(AppConfig.class);
@@ -28,11 +33,11 @@ public class UserServiceTest {
         this.userService = ac.getBean("userService", UserService.class);
         userDao.deleteAll();
 
-        users = Arrays.asList(new User("user1", "영선", "pass123", BASIC, 0, 30),
-                new User("user2", "서니", "pass010", BASIC, 49, 30),
-                new User("user3", "선영", "pass323", BASIC, 50, 29),
-                new User("user4", "이영선", "pass121", BASIC, 50, 40),
-                new User("user5", "이영", "pass212", SILVER, 51, 30));
+        users = Arrays.asList(new User("user1", "영선", "pass123", 0, 30),
+                new User("user2", "서니", "pass010", 49, 30),
+                new User("user3", "선영", "pass323", 50, 29),
+                new User("user4", "이영선", "pass121", 50, 40),
+                new User("user5", "이영", "pass212", 51, 30));
     }
 
     @Test
@@ -43,9 +48,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @Order(2)
     public void upgradeLevels() {
-        userDao.deleteAll();
         users.forEach(user -> userDao.add(user));
         userService.upgradeLevels();
 
@@ -59,5 +62,21 @@ public class UserServiceTest {
     private void checkLevel(User user, Level level) {
         User updatedUser = userDao.getById(user.getId());
         assertThat(updatedUser.getLevel()).isEqualTo(level);
+    }
+
+    @Test
+    @Order(3)
+    public void add() {
+        User goldUser = users.get(4);
+        User silverUser = users.get(2);
+
+        userService.add(goldUser);
+        userService.add(silverUser);
+
+        User savedGoldUser = userDao.getById(goldUser.getId());
+        User savedSilverUser = userDao.getById(silverUser.getId());
+
+        assertThat(savedGoldUser.getLevel()).isEqualTo(GOLD);
+        assertThat(savedSilverUser.getLevel()).isEqualTo(SILVER);
     }
 }

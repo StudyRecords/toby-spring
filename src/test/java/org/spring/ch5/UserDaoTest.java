@@ -37,9 +37,9 @@ public class UserDaoTest {
         this.jdbcTemplate = ac.getBean("jdbcTemplate", JdbcTemplate.class);
         userDao.deleteAll();
 
-        User user1 = new User("user1", "영선", "pass123", BASIC, 0, 0);
-        User user2 = new User("user2", "서니", "pass010", SILVER, 70, 0);
-        User user3 = new User("user3", "선영", "pass323", GOLD, 100, 40);
+        User user1 = new User("user1", "영선", "pass123", 0, 0);
+        User user2 = new User("user2", "서니", "pass010", 70, 0);
+        User user3 = new User("user3", "선영", "pass323", 100, 40);
         userDao.add(user1);
         userDao.add(user2);
         userDao.add(user3);
@@ -78,7 +78,7 @@ public class UserDaoTest {
     @Test
     @Order(5)
     void testSave() {
-        User newUser = new User("user4", "lys", "pass789", BASIC, 0, 20);
+        User newUser = new User("user4", "lys", "pass789", 0, 20);
         userDao.add(newUser);
 
         User savedUser = userDao.getById("user4");
@@ -96,8 +96,8 @@ public class UserDaoTest {
     @Test
     @Order(7)
     void duplicateId() {
-        User user1 = new User("id", "name", "password", SILVER, 51, 20);
-        User user2 = new User("id", "name2", "password2", GOLD, 51, 51);
+        User user1 = new User("id", "name", "password", 51, 20);
+        User user2 = new User("id", "name2", "password2", 51, 51);
         userDao.add(user1);
         assertThatThrownBy(() -> userDao.add(user2))
                 .isInstanceOf(DuplicateUserIdException.class);
@@ -106,7 +106,7 @@ public class UserDaoTest {
     @Test
     @Order(8)
     void duplicateIdRoot() {
-        User user = new User("id", "name", "password", BASIC, 30, 30);
+        User user = new User("id", "name", "password", 30, 30);
         try {
             userDao.add(user);
         } catch (DuplicateUserIdException e) {
@@ -125,8 +125,8 @@ public class UserDaoTest {
         // given
         // fixture 오브젝트 : 테스트에서 일관된 환경을 제공하기 위해 미리 준비된 객체
         //                 테스트가 항상 같은 조건에서 실행되도록 보장하는 역할을 한다.
-        User user = new User("user1", "영선", "pass123", BASIC, 0, 0);
-        User user2 = new User("user2", "영선", "pass123", BASIC, 0, 0);
+        User user = new User("user1", "영선", "pass123", 0, 0);
+        User user2 = new User("user2", "영선", "pass123", 0, 0);
         userDao.add(user);
         userDao.add(user2);
 

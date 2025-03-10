@@ -46,14 +46,7 @@ public class UserDaoJdbc implements UserDao {
     @Override
     public List<User> getAll() {
         String query = "select * from users";
-        RowMapper<User> rowMapper = (rs, rowNum) -> new User(
-                rs.getString("id"),
-                rs.getString("name"),
-                rs.getString("password"),
-                Level.valueOf(rs.getString("level")),
-                rs.getInt("login"),
-                rs.getInt("recommend")
-        );
+        RowMapper<User> rowMapper = getRowMapper();
         try {
             return jdbcTemplate.query(query, rowMapper);
         } catch (DataAccessException e) {
@@ -73,14 +66,7 @@ public class UserDaoJdbc implements UserDao {
     public User getById(String id) {
         String query = "select * from users where id = ?";
 
-        RowMapper<User> rowMapper = (rs, rowNum) -> new User(
-                rs.getString("id"),
-                rs.getString("name"),
-                rs.getString("password"),
-                Level.valueOf(rs.getString("level")),
-                rs.getInt("login"),
-                rs.getInt("recommend")
-        );
+        RowMapper<User> rowMapper = getRowMapper();
 
         try {
             List<User> users = jdbcTemplate.query(query, rowMapper, id);
@@ -109,6 +95,16 @@ public class UserDaoJdbc implements UserDao {
                 user.getLogin(),
                 user.getRecommend(),
                 user.getId()
+        );
+    }
+
+    private RowMapper<User> getRowMapper() {
+        return (rs, rowNum) -> new User(
+                rs.getString("id"),
+                rs.getString("name"),
+                rs.getString("password"),
+                rs.getInt("login"),
+                rs.getInt("recommend")
         );
     }
 

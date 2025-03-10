@@ -77,11 +77,11 @@ public class User {
     }
 
     public User(String id, String name, String password,
-                Level level, int login, int recommend) {
+                int login, int recommend) {
         this.id = id;
         this.name = name;
         this.password = password;
-        this.level = level;
+        this.level = Level.createLevel(login, recommend);
         this.login = login;
         this.recommend = recommend;
     }
