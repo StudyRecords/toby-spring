@@ -3,6 +3,10 @@ package org.spring.ch5.v3;
 import java.util.List;
 
 public class UserServiceV3 {
+
+    public static final int MIN_LOGIN_FOR_SILVER = 50;
+    public static final int MIN_RECOMMEND_FOR_GOLD = 30;
+
     private final UserDaoV3 userDaoV3;
 
     public UserServiceV3(UserDaoV3 userDaoV3) {

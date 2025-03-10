@@ -103,6 +103,7 @@ public class UserDaoV3JdbcV3 implements UserDaoV3 {
                 rs.getString("id"),
                 rs.getString("name"),
                 rs.getString("password"),
+                LevelV3.valueOf(rs.getString("level")),
                 rs.getInt("login"),
                 rs.getInt("recommend")
         );

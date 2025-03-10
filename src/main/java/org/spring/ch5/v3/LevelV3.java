@@ -3,10 +3,21 @@ package org.spring.ch5.v3;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import static org.spring.ch5.v3.UserServiceV3.MIN_LOGIN_FOR_SILVER;
+import static org.spring.ch5.v3.UserServiceV3.MIN_RECOMMEND_FOR_GOLD;
+
 public enum LevelV3 {
+
+//    public static final int MIN_LOGIN_FOR_SILVER = 50;
+//    public static final int MIN_RECOMMEND_FOR_GOLD = 30;
+
+//    BASIC(0, 0),
+//    SILVER(MIN_LOGIN_FOR_SILVER, 0),
+//    GOLD(MIN_LOGIN_FOR_SILVER, MIN_RECOMMEND_FOR_GOLD);
+
     BASIC(0, 0),
-    SILVER(50, 0),
-    GOLD(50, 30);
+    SILVER(MIN_LOGIN_FOR_SILVER, 0),
+    GOLD(MIN_LOGIN_FOR_SILVER, MIN_RECOMMEND_FOR_GOLD);
 
     private final int loginNum;
     private final int recommendNum;
