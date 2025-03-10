@@ -1,4 +1,4 @@
-package org.spring.ch5.v1;
+package org.spring.ch5.v2;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -32,6 +32,16 @@ public enum Level {
 
     public int getRecommendNum() {
         return recommendNum;
+    }
+
+    public Level nextLevel() {
+        if (this == BASIC) {
+            return SILVER;
+        }
+        if (this == SILVER) {
+            return GOLD;
+        }
+        throw new IllegalArgumentException("GOLD 레벨은 upgrade가 불가능합니다");
     }
 
 }
