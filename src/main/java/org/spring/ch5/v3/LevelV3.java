@@ -41,7 +41,7 @@ public enum LevelV3 {
         if (this == SILVER) {
             return GOLD;
         }
-        throw new IllegalArgumentException("GOLD 레벨은 upgrade가 불가능합니다");
+        return null;
     }
 
 }

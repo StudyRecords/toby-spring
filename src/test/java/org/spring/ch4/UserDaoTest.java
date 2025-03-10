@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)            // 각 테스트 메서드간 테스트 인스턴스 공유
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)      // 테스트 실행 순서 지정 가능
 @Transactional               // 테스트 후 자동 롤백
-public class UserV3DaoTest {
+public class UserDaoTest {
 
     private UserDao userDao;
     private JdbcTemplate jdbcTemplate;
