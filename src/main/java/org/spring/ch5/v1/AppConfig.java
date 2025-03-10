@@ -11,6 +11,11 @@ import javax.sql.DataSource;
 public class AppConfig {
 
     @Bean
+    public UserService userService() {
+        return new UserService(userDao());
+    }
+
+    @Bean
     public UserDao userDao() {
         return new UserDaoJdbc(jdbcTemplate());
     }
