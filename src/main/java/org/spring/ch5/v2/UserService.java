@@ -26,7 +26,7 @@ public class UserService {
             case BASIC -> user.getLogin() >= 50;
             case SILVER -> user.getRecommend() >= 30;
             case GOLD -> false;
-            default -> throw new IllegalArgumentException("[UserService.canUpgradeLevel()] 존재하지 않는 Level입니다.");
+            default -> throw new IllegalArgumentException("[UserService.canUpgradeLevel] 존재하지 않는 Level입니다.");
         };
     }
 
