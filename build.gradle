@@ -23,6 +23,10 @@ dependencies {
     implementation 'org.springframework:spring-expression:6.1.2'
     implementation 'org.springframework:spring-jdbc:6.1.2'
     implementation 'org.springframework:spring-tx:6.1.2' // 트랜잭션 지원
+
+
+    // Spring Test 라이브러리
+    testImplementation 'org.springframework:spring-test:5.3.30'
 }
 
 test {

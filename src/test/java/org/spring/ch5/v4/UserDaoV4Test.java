@@ -1,9 +1,8 @@
-package org.spring.ch5;
+package org.spring.ch5.v4;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.spring.ch4.jdbcTemplate.DuplicateUserIdException;
-import org.spring.ch5.v1.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.dao.DataAccessException;
@@ -20,26 +19,26 @@ import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.spring.ch5.v1.Level.*;
+import static org.spring.ch5.v4.LevelV4.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)            // 각 테스트 메서드간 테스트 인스턴스 공유
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)      // 테스트 실행 순서 지정 가능
 @Transactional               // 테스트 후 자동 롤백
-public class UserV3DaoTest {
+public class UserDaoV4Test {
 
-    private UserDao userDao;
+    private UserDaoV4 userDao;
     private JdbcTemplate jdbcTemplate;
 
     @BeforeAll
     void setUp() {
-        ApplicationContext ac = new AnnotationConfigApplicationContext(AppConfig.class);
-        this.userDao = ac.getBean("userDao", UserDao.class);
+        ApplicationContext ac = new AnnotationConfigApplicationContext(AppConfigV4.class);
+        this.userDao = ac.getBean("userDao", UserDaoV4.class);
         this.jdbcTemplate = ac.getBean("jdbcTemplate", JdbcTemplate.class);
         userDao.deleteAll();
 
-        User user1 = new User("user1", "영선", "pass123", 0, 0);
-        User user2 = new User("user2", "서니", "pass010", 70, 0);
-        User user3 = new User("user3", "선영", "pass323", 100, 40);
+        UserV4 user1 = new UserV4("user1", "영선", "pass123", BASIC, 0, 0);
+        UserV4 user2 = new UserV4("user2", "서니", "pass010", SILVER, 70, 0);
+        UserV4 user3 = new UserV4("user3", "선영", "pass323", GOLD, 100, 40);
         userDao.add(user1);
         userDao.add(user2);
         userDao.add(user3);
@@ -48,7 +47,7 @@ public class UserV3DaoTest {
     @Test
     @Order(1)
     void testGetById_Found() {
-        User user = userDao.getById("user1");
+        UserV4 user = userDao.getById("user1");
         Assertions.assertThat(user.getName()).isEqualTo("영선");
     }
 
@@ -64,7 +63,7 @@ public class UserV3DaoTest {
     @Test
     @Order(3)
     void testGetAll() {
-        List<User> users = userDao.getAll();
+        List<UserV4> users = userDao.getAll();
         assertThat(users).hasSize(3);
     }
 
@@ -78,10 +77,10 @@ public class UserV3DaoTest {
     @Test
     @Order(5)
     void testSave() {
-        User newUser = new User("user4", "lys", "pass789", 0, 20);
+        UserV4 newUser = new UserV4("user4", "lys", "pass789", BASIC, 0, 20);
         userDao.add(newUser);
 
-        User savedUser = userDao.getById("user4");
+        UserV4 savedUser = userDao.getById("user4");
         assertThat(savedUser).isNotNull();
         assertThat(savedUser).isEqualTo(newUser);
     }
@@ -96,8 +95,8 @@ public class UserV3DaoTest {
     @Test
     @Order(7)
     void duplicateId() {
-        User user1 = new User("id", "name", "password", 51, 20);
-        User user2 = new User("id", "name2", "password2", 51, 51);
+        UserV4 user1 = new UserV4("id", "name", "password", SILVER, 51, 20);
+        UserV4 user2 = new UserV4("id", "name2", "password2", GOLD, 51, 51);
         userDao.add(user1);
         assertThatThrownBy(() -> userDao.add(user2))
                 .isInstanceOf(DuplicateUserIdException.class);
@@ -106,7 +105,7 @@ public class UserV3DaoTest {
     @Test
     @Order(8)
     void duplicateIdRoot() {
-        User user = new User("id", "name", "password", 30, 30);
+        UserV4 user = new UserV4("id", "name", "password", BASIC, 30, 30);
         try {
             userDao.add(user);
         } catch (DuplicateUserIdException e) {
@@ -119,14 +118,14 @@ public class UserV3DaoTest {
 
     @Test
     @Order(9)
-    void update(){
+    void update() {
         userDao.deleteAll();
 
         // given
         // fixture 오브젝트 : 테스트에서 일관된 환경을 제공하기 위해 미리 준비된 객체
         //                 테스트가 항상 같은 조건에서 실행되도록 보장하는 역할을 한다.
-        User user = new User("user1", "영선", "pass123", 0, 0);
-        User user2 = new User("user2", "영선", "pass123", 0, 0);
+        UserV4 user = new UserV4("user1", "영선", "pass123", BASIC, 0, 0);
+        UserV4 user2 = new UserV4("user2", "영선", "pass123", BASIC, 0, 0);
         userDao.add(user);
         userDao.add(user2);
 
@@ -141,7 +140,7 @@ public class UserV3DaoTest {
         assertThat(updatedRows).isEqualTo(1);
 
         // then
-        User updatedUser = userDao.getById(user.getId());
+        UserV4 updatedUser = userDao.getById(user.getId());
         assertThat(user).isEqualTo(updatedUser);
     }
 }
