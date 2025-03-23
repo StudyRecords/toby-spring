@@ -8,15 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
+import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.spring.ch5.transaction.Level.*;
 
 @ExtendWith(SpringExtension.class)                         // JUnit 5에서 Spring 테스트 확장 활성화
@@ -32,22 +31,19 @@ public class UserServiceTest {
     private UserDao userDao;
     @Autowired
     private UserService userService;
+    @Autowired
+    private DataSource dataSource;
 
     @BeforeEach
-    void init() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/toby", "sa", "");
-        userDao.deleteAll(connection);
-    }
-
-    @BeforeAll
-    void setUp() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/toby", "sa", "");
-        userDao.deleteAll(connection);
-        users = Arrays.asList(new User("user1", "영선", "pass123", BASIC, 0, 30),
-                new User("user2", "서니", "pass010", BASIC, 50, 29),
-                new User("user3", "선영", "pass323", SILVER, 50, 31),
+    void init() {
+        userDao.deleteAll();
+        users = Arrays.asList(
+                new User("user1", "영선", "pass123", BASIC, 0, 30),
+                new User("user2", "서니", "pass010", BASIC, 50, 20),
+                new User("user3", "선영", "pass323", SILVER, 51, 29),
                 new User("user4", "이영선", "pass121", SILVER, 50, 40),
-                new User("user5", "이영", "pass212", GOLD, 51, 30));
+                new User("user5", "이영", "pass212", GOLD, 51, 30)
+        );
     }
 
     @Test
@@ -59,20 +55,19 @@ public class UserServiceTest {
 
     @Test
     public void upgradeLevels() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/toby", "sa", "");
-        users.forEach(user -> userDao.add(connection, user));
+        users.forEach(user -> userDao.add(user));
         userService.upgradeLevels();
 
         checkLevel(users.get(0), BASIC);
-        checkLevel(users.get(1), SILVER);
-        checkLevel(users.get(2), GOLD);
-        checkLevel(users.get(3), GOLD);
+        checkLevel(users.get(1), SILVER);       // update 1
+        checkLevel(users.get(2), SILVER);
+        checkLevel(users.get(3), GOLD);         // update 2
         checkLevel(users.get(4), GOLD);
     }
 
-    private void checkLevel(User user, Level level) throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/toby", "sa", "");
-        User updatedUser = userDao.getById(connection, user.getId());
+    private void checkLevel(User user, Level level) {
+        System.out.println("user=" + user.toString() + " level=" + level.name());
+        User updatedUser = userDao.getById(user.getId());
         assertThat(updatedUser.getLevel()).isEqualTo(level);
     }
 
@@ -85,9 +80,8 @@ public class UserServiceTest {
         userService.add(goldUser);
         userService.add(silverUser);
 
-        Connection connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/toby", "sa", "");
-        User savedGoldUser = userDao.getById(connection, goldUser.getId());
-        User savedSilverUser = userDao.getById(connection, silverUser.getId());
+        User savedGoldUser = userDao.getById(goldUser.getId());
+        User savedSilverUser = userDao.getById(silverUser.getId());
 
 
         // TODO. 둘의 차이가 뭘까?
@@ -96,24 +90,18 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeAllOrNothing() throws SQLException {
+    public void upgradeAllOrNothing() {
         TestUserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(userDao);        // TestUserService가 static 클래스이므로 수동 DI를 해준다.
-        Connection connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/toby", "sa", "");
-        userDao.deleteAll(connection);
+        testUserService.setDataSource(dataSource);
+
         for (User user : users) {
-            userDao.add(connection, user);
+            userDao.add(user);
         }
 
-        try {
-            testUserService.upgradeLevels();
-            fail("testUserService.upgradeLevels() 실행 중에 오류가 발생하지 않음");
-        } catch (TestUserServiceException e) {
-            log.info("TestUserServiceException 오류 발생");
-        } catch (SQLException e) {
-            log.info("SQLException 오류 발생");
-            throw new RuntimeException(e);
-        }
+
+        assertThrows(TestUserServiceException.class, testUserService::upgradeLevels);
+
         checkLevel(users.get(1), BASIC);        // 💥 도중에 오류가 발생했는데도 롤백되지 않음 (변경 사항이 db에 반영됨)
     }
 
@@ -126,11 +114,11 @@ public class UserServiceTest {
         }
 
         @Override
-        protected void upgradeLevel(Connection connection, User user) throws SQLException {
+        protected void upgradeLevel(User user) throws SQLException {
             if (user.getId().equals(id)) {
                 throw new TestUserServiceException();
             }
-            super.upgradeLevel(connection, user);
+            super.upgradeLevel(user);
         }
     }
 

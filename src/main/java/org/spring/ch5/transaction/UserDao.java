@@ -1,18 +1,17 @@
 package org.spring.ch5.transaction;
 
-import java.sql.Connection;
 import java.util.List;
 
 public interface UserDao {
-    void add(Connection connection, User user);
+    void add(User user);
 
-    User getById(Connection connection, String id);
+    User getById(String id);
 
-    List<User> getAll(Connection connection);
+    List<User> getAll();
 
-    void deleteAll(Connection connection);
+    void deleteAll();
 
-    int getCount(Connection connection);
+    int getCount();
 
-    int update(Connection connection, User user);
+    int update(User user);
 }

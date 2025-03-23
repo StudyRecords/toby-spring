@@ -1,30 +1,42 @@
 package org.spring.ch5.transaction;
 
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+
 
 public class UserService {
 
     public static final int MIN_LOGIN_FOR_SILVER = 50;
     public static final int MIN_RECOMMEND_FOR_GOLD = 30;
 
-    private UserDao userDao;
+    protected UserDao userDao;
+    protected DataSource dataSource;
 
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
     }
 
-    public void upgradeLevels() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/toby", "sa", "");
-        List<User> users = userDao.getAll(connection);
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
-        connection.setAutoCommit(false);
+
+    public void upgradeLevels() throws SQLException {
+        TransactionSynchronizationManager.initSynchronization();        // 트랜잭션 동기화 관리자를 이용해 동기화 작업 초기화
+        Connection connection = DataSourceUtils.getConnection(dataSource);        // DB 커넥션을 생성 & 동기화 동시에 수행
+        connection.setAutoCommit(false);                                               // 트랜잭션 시작
+
+        List<User> users = userDao.getAll();
+
         try {
             for (User user : users) {
                 if (canUpgradeLevel(user)) {
-                    upgradeLevel(connection, user);
+                    upgradeLevel(user);
                 }
             }
             connection.commit();
@@ -32,7 +44,9 @@ public class UserService {
             connection.rollback();
             throw e;
         } finally {
-            connection.close();
+//            connection.close();
+            DataSourceUtils.releaseConnection(connection, dataSource);
+            TransactionSynchronizationManager.clearSynchronization();
         }
 
     }
@@ -47,13 +61,12 @@ public class UserService {
         };
     }
 
-    protected void upgradeLevel(Connection connection, User user) throws SQLException {
+    protected void upgradeLevel(User user) throws SQLException {
         user.upgradeLevel();
-        userDao.update(connection, user);
+        userDao.update(user);
     }
 
     public void add(User user) throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/toby", "sa", "");
-        userDao.add(connection, user);
+        userDao.add(user);
     }
 }

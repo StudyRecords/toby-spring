@@ -9,14 +9,10 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
-//@Repository
+
 public class UserDaoJdbc implements UserDao {
     private static final Log log = LogFactory.getLog(UserDaoJdbc.class);
     private final JdbcTemplate jdbcTemplate;
@@ -26,13 +22,13 @@ public class UserDaoJdbc implements UserDao {
     }
 
     @Override
-    public void deleteAll(Connection connection) {
+    public void deleteAll() {
         String command = "delete from users";
         jdbcTemplate.update(command);
     }
 
     @Override
-    public void add(Connection connection, User user) throws DuplicateUserIdException {
+    public void add(User user) throws DuplicateUserIdException {
         try {
             String command = "insert into users(id, name, password, level, login, recommend) values (?, ?, ?, ?, ?, ?)";
             jdbcTemplate.update(command, user.getId(), user.getName(), user.getPassword(),
@@ -47,41 +43,26 @@ public class UserDaoJdbc implements UserDao {
     }
 
     @Override
-    public List<User> getAll(Connection connection) {
+    public List<User> getAll() {
         String query = "select * from users";
-        List<User> users = new ArrayList<>();
-
-        try (PreparedStatement ps = connection.prepareStatement(query);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                User user = new User();
-                user.setId(rs.getString("id"));
-                user.setName(rs.getString("name"));
-                user.setPassword(rs.getString("password"));
-                user.setLevel(Level.valueOf(rs.getString("level")));
-                user.setLogin(rs.getInt("login"));
-                user.setRecommend(rs.getInt("recommend"));
-                users.add(user);
-            }
-
-        } catch (SQLException e) {
+        RowMapper<User> rowMapper = getRowMapper();
+        try {
+            return jdbcTemplate.query(query, rowMapper);
+        } catch (DataAccessException e) {
             log.error("[getAll] 데이터 액세스 중 오류 발생 : " + e.getMessage());
-            throw new RuntimeException(e);
+            throw e;
         }
-
-        return users;
     }
 
     // queryForInt() 메서드는 스프링 3.x 까지 존재했음. 스프링 4.x 부터 deprecated 되어 queryForObject() 로 대체됨
     @Override
-    public int getCount(Connection connection) {
+    public int getCount() {
         Integer count = jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
         return count != null ? count : 0;
     }
 
     @Override
-    public User getById(Connection connection, String id) {
+    public User getById(String id) {
         String query = "select * from users where id = ?";
 
         RowMapper<User> rowMapper = getRowMapper();
@@ -103,20 +84,17 @@ public class UserDaoJdbc implements UserDao {
     }
 
     @Override
-    public int update(Connection connection, User user) {
+    public int update(User user) {
         String command = "update users set name = ?, password = ?, level = ?, login = ?, recommend = ? where id = ?;";
-        try (PreparedStatement ps = connection.prepareStatement(command)) {
-            ps.setString(1, user.getName());
-            ps.setString(2, user.getPassword());
-            ps.setString(3, user.getLevel().name());
-            ps.setInt(4, user.getLogin());
-            ps.setInt(5, user.getRecommend());
-            ps.setString(6, user.getId());
-
-            return ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        return jdbcTemplate.update(
+                command,
+                user.getName(),
+                user.getPassword(),
+                user.getLevel().name(),
+                user.getLogin(),
+                user.getRecommend(),
+                user.getId()
+        );
     }
 
     private RowMapper<User> getRowMapper() {

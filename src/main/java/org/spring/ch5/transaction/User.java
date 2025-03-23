@@ -98,4 +98,16 @@ public class User {
             this.level = nextLevel;
         }
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                ", level=" + level +
+                ", login=" + login +
+                ", recommend=" + recommend +
+                '}';
+    }
 }
