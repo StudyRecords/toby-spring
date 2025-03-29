@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.naming.NamingException;
 import javax.sql.DataSource;
+import javax.transaction.SystemException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +56,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeLevels() throws SQLException {
+    public void upgradeLevels() throws SystemException, NamingException {
         users.forEach(user -> userDao.add(user));
         userService.upgradeLevels();
 
@@ -66,7 +68,6 @@ public class UserServiceTest {
     }
 
     private void checkLevel(User user, Level level) {
-        System.out.println("user=" + user.toString() + " level=" + level.name());
         User updatedUser = userDao.getById(user.getId());
         assertThat(updatedUser.getLevel()).isEqualTo(level);
     }
@@ -114,7 +115,7 @@ public class UserServiceTest {
         }
 
         @Override
-        protected void upgradeLevel(User user) throws SQLException {
+        protected void upgradeLevel(User user) {
             if (user.getId().equals(id)) {
                 throw new TestUserServiceException();
             }
