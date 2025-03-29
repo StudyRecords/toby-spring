@@ -30,9 +30,9 @@ public class UserDaoJdbc implements UserDao {
     @Override
     public void add(User user) throws DuplicateUserIdException {
         try {
-            String command = "insert into users(id, name, password, level, login, recommend) values (?, ?, ?, ?, ?, ?)";
+            String command = "insert into users(id, name, password, level, login, recommend, email) values (?, ?, ?, ?, ?, ?, ?)";
             jdbcTemplate.update(command, user.getId(), user.getName(), user.getPassword(),
-                    user.getLevel().name(), user.getLogin(), user.getRecommend());
+                    user.getLevel().name(), user.getLogin(), user.getRecommend(), user.getEmail());
         } catch (DataAccessException e) {       // 언체크 예외 (RuntimeException)
             if ("23505".equals(((SQLException) e.getCause()).getSQLState())) {
                 throw new DuplicateUserIdException(e.getMessage(), e.getCause());       // 언체크 예외
@@ -57,8 +57,7 @@ public class UserDaoJdbc implements UserDao {
     // queryForInt() 메서드는 스프링 3.x 까지 존재했음. 스프링 4.x 부터 deprecated 되어 queryForObject() 로 대체됨
     @Override
     public int getCount() {
-        Integer count = jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
-        return count != null ? count : 0;
+        return jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
     }
 
     @Override
@@ -85,7 +84,9 @@ public class UserDaoJdbc implements UserDao {
 
     @Override
     public int update(User user) {
-        String command = "update users set name = ?, password = ?, level = ?, login = ?, recommend = ? where id = ?;";
+        String command = "update users " +
+                "set name = ?, password = ?, level = ?, login = ?, recommend = ?, email = ? " +
+                "where id = ?;";
         return jdbcTemplate.update(
                 command,
                 user.getName(),
@@ -93,6 +94,7 @@ public class UserDaoJdbc implements UserDao {
                 user.getLevel().name(),
                 user.getLogin(),
                 user.getRecommend(),
+                user.getEmail(),
                 user.getId()
         );
     }
@@ -104,7 +106,8 @@ public class UserDaoJdbc implements UserDao {
                 rs.getString("password"),
                 Level.valueOf(rs.getString("level")),
                 rs.getInt("login"),
-                rs.getInt("recommend")
+                rs.getInt("recommend"),
+                rs.getString("email")
         );
     }
 

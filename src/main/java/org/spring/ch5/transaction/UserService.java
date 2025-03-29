@@ -1,5 +1,9 @@
 package org.spring.ch5.transaction;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -7,18 +11,19 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import java.util.List;
 
 
+@RequiredArgsConstructor
 public class UserService {
 
     public static final int MIN_LOGIN_FOR_SILVER = 50;
     public static final int MIN_RECOMMEND_FOR_GOLD = 30;
 
+    @Value("${spring.mail.username}")
+    private String username;
+
     protected final UserDao userDao;
     protected final PlatformTransactionManager transactionManager;
+    protected final MailSender mailSender;
 
-    public UserService(UserDao userDao, PlatformTransactionManager transactionManager) {
-        this.userDao = userDao;
-        this.transactionManager = transactionManager;
-    }
 
     public void upgradeLevels() {
         // 1. JDBC 트랜잭션 추상 오브젝트 생성
@@ -58,9 +63,21 @@ public class UserService {
     protected void upgradeLevel(User user) {
         user.upgradeLevel();
         userDao.update(user);
+        sendUpgradeMail(user);
     }
 
     public void add(User user) {
         userDao.add(user);
     }
+
+    private void sendUpgradeMail(User user) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(user.getEmail());
+        message.setFrom(username);
+        message.setSubject("Upgrade 안내");
+        message.setText("사용자님의 등급이 " + user.getLevel().name() + "로 업그레이드 되었습니다!");
+
+        mailSender.send(message);
+    }
+
 }
