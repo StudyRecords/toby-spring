@@ -7,9 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.naming.NamingException;
-import javax.sql.DataSource;
 import javax.transaction.SystemException;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -27,14 +27,13 @@ import static org.spring.ch5.transaction.Level.*;
 //@Transactional                                             // 테스트 후 자동 롤백
 public class UserServiceTest {
 
-    private static final Log log = LogFactory.getLog(UserServiceTest.class);
     private List<User> users;
     @Autowired
     private UserDao userDao;
     @Autowired
     private UserService userService;
     @Autowired
-    private DataSource dataSource;
+    private PlatformTransactionManager transactionManager;
 
     @BeforeEach
     void init() {
@@ -92,9 +91,9 @@ public class UserServiceTest {
 
     @Test
     public void upgradeAllOrNothing() {
-        TestUserService testUserService = new TestUserService(users.get(3).getId());
-        testUserService.setUserDao(userDao);        // TestUserService가 static 클래스이므로 수동 DI를 해준다.
-        testUserService.setDataSource(dataSource);
+        TestUserService testUserService = new TestUserService(users.get(3).getId(), userDao, transactionManager);
+//        testUserService.setUserDao(userDao);        // TestUserService가 static 클래스이므로 수동 DI를 해준다.
+//        testUserService.setDataSource(dataSource);
 
         for (User user : users) {
             userDao.add(user);
@@ -110,7 +109,8 @@ public class UserServiceTest {
     static class TestUserService extends UserService {
         private String id;
 
-        private TestUserService(String id) {
+        private TestUserService(String id, UserDao userDao, PlatformTransactionManager transactionManager) {
+            super(userDao, transactionManager);
             this.id = id;
         }
 

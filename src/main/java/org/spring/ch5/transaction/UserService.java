@@ -1,11 +1,9 @@
 package org.spring.ch5.transaction;
 
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 
@@ -13,24 +11,19 @@ public class UserService {
 
     public static final int MIN_LOGIN_FOR_SILVER = 50;
     public static final int MIN_RECOMMEND_FOR_GOLD = 30;
-    public static final String USER_TX_JNDI_NAME = "java:comp/UserTransaction";
 
-    protected UserDao userDao;
-    protected DataSource dataSource;
+    protected final UserDao userDao;
+    protected final PlatformTransactionManager transactionManager;
 
-    public void setUserDao(UserDao userDao) {
+    public UserService(UserDao userDao, PlatformTransactionManager transactionManager) {
         this.userDao = userDao;
+        this.transactionManager = transactionManager;
     }
-
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
 
     public void upgradeLevels() {
         // 1. JDBC 트랜잭션 추상 오브젝트 생성
         //    JDBC 기반의 로컬 트랜잭션을 처리하기 위해 PlatformTransactionManager의 구현체 중 하나인 DataSourceTransactionManager 생성
-        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
+//        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
 
         // 2. 트랜잭션 시작
         //    DefaultTransactionDefinition : 트랜잭션에 대한 속성을 담고 있음 (파라미터를 통해 옵션 설정 가능)

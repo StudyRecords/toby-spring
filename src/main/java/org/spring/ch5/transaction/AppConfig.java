@@ -4,7 +4,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -14,10 +16,7 @@ public class AppConfig {
 
     @Bean
     public UserService userService() {
-        UserService userService = new UserService();
-        userService.setUserDao(userDao());
-        userService.setDataSource(dataSource());
-        return userService;
+        return new UserService(userDao(), transactionManager());
     }
 
     @Bean
@@ -25,10 +24,10 @@ public class AppConfig {
         return new UserDaoJdbc(jdbcTemplate());
     }
 
-//    @Bean
-//    public PlatformTransactionManager transactionManager() {
-//        return new DataSourceTransactionManager(dataSource()); // 트랜잭션 매니저 등록
-//    }
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+        return new DataSourceTransactionManager(dataSource()); // 트랜잭션 매니저 등록
+    }
 
     @Bean
     public JdbcTemplate jdbcTemplate() {
