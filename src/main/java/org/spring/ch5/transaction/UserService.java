@@ -79,5 +79,4 @@ public class UserService {
 
         mailSender.send(message);
     }
-
 }

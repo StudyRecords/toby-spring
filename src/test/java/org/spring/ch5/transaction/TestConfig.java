@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.mail.MailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
@@ -16,7 +15,7 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan(basePackages = "org.spring.ch5.transaction")
 @PropertySource({"classpath:ch5/application.properties"})
-public class AppConfig {
+public class TestConfig {
 
     @Bean
     public UserService userService() {
@@ -25,7 +24,7 @@ public class AppConfig {
 
     @Bean
     public MailSender mailSender() {
-        return new JavaMailSenderImpl();
+        return new DummyMailSender();
     }
 
     @Bean

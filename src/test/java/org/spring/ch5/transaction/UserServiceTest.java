@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -11,13 +12,14 @@ import org.springframework.transaction.PlatformTransactionManager;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.spring.ch5.transaction.Level.*;
 
 @ExtendWith(SpringExtension.class)                         // JUnit 5에서 Spring 테스트 확장 활성화
-@ContextConfiguration(classes = AppConfig.class)
+@ContextConfiguration(classes = TestConfig.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)            // 각 테스트 메서드간 테스트 인스턴스 공유
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)      // 테스트 실행 순서 지정 가능
 //@Transactional                                             // 테스트 후 자동 롤백
@@ -53,8 +55,13 @@ public class UserServiceTest {
     }
 
     @Test
+    @DirtiesContext         // 컨텍스트의 DI 설정을 변경한 테스트라는 것을 명시
     public void upgradeLevels() {
         users.forEach(user -> userDao.add(user));
+
+        MockMailSender mockMailSender = new MockMailSender();
+        UserService userService = new UserService(userDao, transactionManager, mockMailSender);
+
         userService.upgradeLevels();
 
         checkLevel(users.get(0), BASIC);
@@ -62,6 +69,11 @@ public class UserServiceTest {
         checkLevel(users.get(2), SILVER);
         checkLevel(users.get(3), GOLD);         // update 2
         checkLevel(users.get(4), GOLD);
+
+        List<String> requests = mockMailSender.getRequests();
+        assertThat(requests.size()).isEqualTo(2);
+        assertThat(requests.get(0)).isEqualTo(users.get(1).getEmail());
+        assertThat(requests.get(1)).isEqualTo( users.get(3).getEmail());
     }
 
     private void checkLevel(User user, Level level) {
@@ -90,8 +102,6 @@ public class UserServiceTest {
     @Test
     public void upgradeAllOrNothing() {
         TestUserService testUserService = new TestUserService(users.get(3).getId(), userDao, transactionManager, mailSender);
-//        testUserService.setUserDao(userDao);        // TestUserService가 static 클래스이므로 수동 DI를 해준다.
-//        testUserService.setDataSource(dataSource);
 
         for (User user : users) {
             userDao.add(user);
