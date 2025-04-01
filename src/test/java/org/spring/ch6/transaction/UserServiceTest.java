@@ -1,7 +1,10 @@
-package org.spring.ch5.transaction;
+package org.spring.ch6.transaction;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.spring.ch6.transaction.userService.UserService;
+import org.spring.ch6.transaction.userService.UserServiceImpl;
+import org.spring.ch6.transaction.userService.UserServiceTx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.test.annotation.DirtiesContext;
@@ -15,13 +18,13 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.spring.ch5.transaction.Level.*;
+import static org.spring.ch6.transaction.Level.*;
+
 
 @ExtendWith(SpringExtension.class)                         // JUnit 5에서 Spring 테스트 확장 활성화
 @ContextConfiguration(classes = TestConfig.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)            // 각 테스트 메서드간 테스트 인스턴스 공유
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)      // 테스트 실행 순서 지정 가능
-//@Transactional                                             // 테스트 후 자동 롤백
 public class UserServiceTest {
 
     private List<User> users;
@@ -59,7 +62,7 @@ public class UserServiceTest {
         users.forEach(user -> userDao.add(user));
 
         MockMailSender mockMailSender = new MockMailSender();
-        UserService userService = new UserService(userDao, transactionManager, mockMailSender);
+        UserService userService = new UserServiceTx(transactionManager, new UserServiceImpl(userDao, mockMailSender));
 
         userService.upgradeLevels();
 
@@ -101,26 +104,26 @@ public class UserServiceTest {
     @Test
     public void upgradeAllOrNothing() {
         TestUserService testUserService = new TestUserService(users.get(3).getId(), userDao, transactionManager, mailSender);
+        UserServiceTx userServiceTx = new UserServiceTx(transactionManager, testUserService);
 
         for (User user : users) {
             userDao.add(user);
         }
 
-
-        assertThrows(TestUserServiceException.class, testUserService::upgradeLevels);
+        assertThrows(TestUserServiceException.class, userServiceTx::upgradeLevels);
 
         checkLevel(users.get(1), BASIC);        // 💥 도중에 오류가 발생했는데도 롤백되지 않음 (변경 사항이 db에 반영됨)
     }
 
     // 테스트를 위한 클래스들
-    static class TestUserService extends UserService {
+    static class TestUserService extends UserServiceImpl {
         private String id;
 
         private TestUserService(String id,
                                 UserDao userDao,
                                 PlatformTransactionManager transactionManager,
                                 MailSender mailSender) {
-            super(userDao, transactionManager, mailSender);
+            super(userDao, mailSender);
             this.id = id;
         }
 
