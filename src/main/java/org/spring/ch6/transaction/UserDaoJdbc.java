@@ -83,11 +83,11 @@ public class UserDaoJdbc implements UserDao {
     }
 
     @Override
-    public int update(User user) {
+    public void update(User user) {
         String command = "update users " +
                 "set name = ?, password = ?, level = ?, login = ?, recommend = ?, email = ? " +
                 "where id = ?;";
-        return jdbcTemplate.update(
+        jdbcTemplate.update(
                 command,
                 user.getName(),
                 user.getPassword(),

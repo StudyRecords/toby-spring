@@ -59,23 +59,29 @@ public class UserServiceTest {
     @Test
     @DirtiesContext         // 컨텍스트의 DI 설정을 변경한 테스트라는 것을 명시
     public void upgradeLevels() {
-        users.forEach(user -> userDao.add(user));
+        // given
+        MockUserDao mockUserDao = new MockUserDao(users);
+        MockMailSender mockMailSender = new MockMailSender();        //  메일 발송 여부 확인을 위한 목 오브젝트 수동 DI
+        UserService userService = new UserServiceTx(transactionManager, new UserServiceImpl(mockUserDao, mockMailSender));
 
-        MockMailSender mockMailSender = new MockMailSender();
-        UserService userService = new UserServiceTx(transactionManager, new UserServiceImpl(userDao, mockMailSender));
-
+        // when
         userService.upgradeLevels();
 
-        checkLevel(users.get(0), BASIC);
-        checkLevel(users.get(1), SILVER);       // update 1
-        checkLevel(users.get(2), SILVER);
-        checkLevel(users.get(3), GOLD);         // update 2
-        checkLevel(users.get(4), GOLD);
+        // then
+        List<User> updatedUsers = mockUserDao.getUpdatedUsers();
+        assertThat(updatedUsers.size()).isEqualTo(2);
+        checkUserAndLevel(updatedUsers.get(0), "user2", SILVER);
+        checkUserAndLevel(updatedUsers.get(1), "user4", GOLD);
 
         List<String> requests = mockMailSender.getRequests();
         assertThat(requests.size()).isEqualTo(2);
         assertThat(requests.get(0)).isEqualTo(users.get(1).getEmail());
         assertThat(requests.get(1)).isEqualTo( users.get(3).getEmail());
+    }
+
+    private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {
+        assertThat(updated.getId()).isEqualTo(expectedId);
+        assertThat(updated.getLevel()).isEqualTo(expectedLevel);
     }
 
     private void checkLevel(User user, Level level) {

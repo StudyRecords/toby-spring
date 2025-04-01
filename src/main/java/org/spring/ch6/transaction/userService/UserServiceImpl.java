@@ -7,9 +7,6 @@ import org.spring.ch6.transaction.UserDao;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.util.List;
 
@@ -27,12 +24,12 @@ public class UserServiceImpl implements UserService {
     protected final MailSender mailSender;
 
     public void upgradeLevels() {
-            List<User> users = userDao.getAll();
-            for (User user : users) {
-                if (canUpgradeLevel(user)) {
-                    upgradeLevel(user);
-                }
+        List<User> users = userDao.getAll();
+        for (User user : users) {
+            if (canUpgradeLevel(user)) {
+                upgradeLevel(user);
             }
+        }
     }
 
     protected boolean canUpgradeLevel(User user) {
