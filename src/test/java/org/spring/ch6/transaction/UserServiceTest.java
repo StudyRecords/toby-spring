@@ -2,11 +2,14 @@ package org.spring.ch6.transaction;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.spring.ch6.transaction.userService.UserService;
 import org.spring.ch6.transaction.userService.UserServiceImpl;
 import org.spring.ch6.transaction.userService.UserServiceTx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -18,6 +21,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 import static org.spring.ch6.transaction.Level.*;
 
 
@@ -60,29 +64,32 @@ public class UserServiceTest {
     @DirtiesContext         // 컨텍스트의 DI 설정을 변경한 테스트라는 것을 명시
     public void upgradeLevels() {
         // given
-        MockUserDao mockUserDao = new MockUserDao(users);
-        MockMailSender mockMailSender = new MockMailSender();        //  메일 발송 여부 확인을 위한 목 오브젝트 수동 DI
+        UserDao mockUserDao = Mockito.mock(UserDao.class);
+        when(mockUserDao.getAll()).thenReturn(this.users);
+        MailSender mockMailSender = Mockito.mock(MailSender.class);        //  메일 발송 여부 확인을 위한 목 오브젝트 수동 DI
         UserService userService = new UserServiceTx(transactionManager, new UserServiceImpl(mockUserDao, mockMailSender));
 
         // when
         userService.upgradeLevels();
 
-        // then
-        List<User> updatedUsers = mockUserDao.getUpdatedUsers();
-        assertThat(updatedUsers.size()).isEqualTo(2);
-        checkUserAndLevel(updatedUsers.get(0), "user2", SILVER);
-        checkUserAndLevel(updatedUsers.get(1), "user4", GOLD);
+        // then - update
+        verify(mockUserDao, times(2)).update(any(User.class));
 
-        List<String> requests = mockMailSender.getRequests();
-        assertThat(requests.size()).isEqualTo(2);
-        assertThat(requests.get(0)).isEqualTo(users.get(1).getEmail());
-        assertThat(requests.get(1)).isEqualTo( users.get(3).getEmail());
+        verify(mockUserDao).update(users.get(1));
+        assertThat(users.get(1).getLevel()).isEqualTo(SILVER);
+
+        verify(mockUserDao).update(users.get(3));
+        assertThat(users.get(3).getLevel()).isEqualTo(GOLD);
+
+        // then - mail
+        ArgumentCaptor<SimpleMailMessage> mailMessageArg = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mockMailSender, times(2)).send(mailMessageArg.capture());
+        List<SimpleMailMessage> mailMessages = mailMessageArg.getAllValues();
+
+        assertThat(mailMessages.get(0).getTo()[0]).isEqualTo(users.get(1).getEmail());
+        assertThat(mailMessages.get(1).getTo()[0]).isEqualTo(users.get(3).getEmail());
     }
 
-    private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {
-        assertThat(updated.getId()).isEqualTo(expectedId);
-        assertThat(updated.getLevel()).isEqualTo(expectedLevel);
-    }
 
     private void checkLevel(User user, Level level) {
         User updatedUser = userDao.getById(user.getId());
