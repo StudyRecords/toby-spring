@@ -73,15 +73,19 @@ public class UserServiceTest {
         userService.upgradeLevels();
 
         // then - update
+        // 1️⃣ 호출 횟수 확인
         verify(mockUserDao, times(2)).update(any(User.class));
 
+        // 2️⃣ 목 오브젝트 호출 시 파라미터를 하나씩 점검
         verify(mockUserDao).update(users.get(1));
-        assertThat(users.get(1).getLevel()).isEqualTo(SILVER);
-
         verify(mockUserDao).update(users.get(3));
+
+        // 3️⃣ 각 User의 레벨 변경을 직접 확인
+        assertThat(users.get(1).getLevel()).isEqualTo(SILVER);
         assertThat(users.get(3).getLevel()).isEqualTo(GOLD);
 
         // then - mail
+        // ArgumentCaptor를 사용해서 실제 MailSender 목 오브젝트에 전달된 파라미터를 가져옴 (파라미터의 내부 정보 가져오기)
         ArgumentCaptor<SimpleMailMessage> mailMessageArg = ArgumentCaptor.forClass(SimpleMailMessage.class);
         verify(mockMailSender, times(2)).send(mailMessageArg.capture());
         List<SimpleMailMessage> mailMessages = mailMessageArg.getAllValues();

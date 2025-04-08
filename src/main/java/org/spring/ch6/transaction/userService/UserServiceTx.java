@@ -22,6 +22,7 @@ public class UserServiceTx implements UserService {
         // 2. 트랜잭션 시작
         //    DefaultTransactionDefinition : 트랜잭션에 대한 속성을 담고 있음 (파라미터를 통해 옵션 설정 가능)
         //    TransactionStatus : 생성된 트랜잭션의 상태 정보를 담고 있는 변수
+
         TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
 
         try {
