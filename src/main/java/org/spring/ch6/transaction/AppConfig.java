@@ -1,5 +1,8 @@
 package org.spring.ch6.transaction;
 
+import org.spring.ch6.reflect.Hello;
+import org.spring.ch6.reflect.HelloTarget;
+import org.spring.ch6.reflect.UppercaseHandler;
 import org.spring.ch6.transaction.userService.UserService;
 import org.spring.ch6.transaction.userService.UserServiceImpl;
 import org.spring.ch6.transaction.userService.UserServiceTx;
@@ -15,11 +18,21 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Proxy;
 
 @Configuration
 @ComponentScan(basePackages = "org.spring.ch6.transaction")
 @PropertySource({"classpath:ch5/application.properties"})
 public class AppConfig {
+
+    @Bean
+    public Hello proxy(){
+        return (Hello) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[]{Hello.class},
+                new UppercaseHandler(new HelloTarget())
+        );
+    }
 
     @Bean
     public UserService userService(){

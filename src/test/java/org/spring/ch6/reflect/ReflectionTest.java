@@ -1,8 +1,10 @@
 package org.spring.ch6.reflect;
 
 import org.junit.jupiter.api.Test;
+import org.spring.ch6.transaction.TransactionHandler;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,4 +35,17 @@ public class ReflectionTest {
         assertThat(proxiedHello.sayHi("lyouxsun")).isEqualTo("HI LYOUXSUN");
         assertThat(proxiedHello.sayThankYou("lyouxsun")).isEqualTo("THANK YOU LYOUXSUN");
     }
+
+    @Test
+    public void dynamicProxy(){
+        Hello proxiedHello = (Hello) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[]{Hello.class},
+                new UppercaseHandler(new HelloTarget())
+        );
+        assertThat(proxiedHello.sayHello("lyouxsun")).isEqualTo("HELLO LYOUXSUN");
+        assertThat(proxiedHello.sayHi("lyouxsun")).isEqualTo("HI LYOUXSUN");
+        assertThat(proxiedHello.sayThankYou("lyouxsun")).isEqualTo("THANK YOU LYOUXSUN");
+    }
+
 }

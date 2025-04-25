@@ -133,13 +133,13 @@ public class UserServiceTest {
     }
 
     // 테스트를 위한 클래스들
-    static class TestUserService extends UserServiceImpl {
+    public static class TestUserService extends UserServiceImpl {
         private String id;
 
-        private TestUserService(String id,
-                                UserDao userDao,
-                                PlatformTransactionManager transactionManager,
-                                MailSender mailSender) {
+        public TestUserService(String id,
+                               UserDao userDao,
+                               PlatformTransactionManager transactionManager,
+                               MailSender mailSender) {
             super(userDao, mailSender);
             this.id = id;
         }
@@ -153,7 +153,7 @@ public class UserServiceTest {
         }
     }
 
-    static class TestUserServiceException extends RuntimeException {
+    public static class TestUserServiceException extends RuntimeException {
 
     }
 }
