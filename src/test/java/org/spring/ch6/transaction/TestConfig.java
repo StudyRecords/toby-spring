@@ -1,5 +1,6 @@
 package org.spring.ch6.transaction;
 
+import org.spring.ch6.transaction.factoryBean.TxProxyFactoryBean;
 import org.spring.ch6.transaction.userService.UserService;
 import org.spring.ch6.transaction.userService.UserServiceImpl;
 import org.spring.ch6.transaction.userService.UserServiceTx;
@@ -20,9 +21,20 @@ import javax.sql.DataSource;
 @PropertySource({"classpath:ch5/application.properties"})
 public class TestConfig {
 
+//    @Bean
+//    public UserService userService(){
+//        return new UserServiceTx(transactionManager(), userServiceImpl());
+//    }
+
+
+    // 팩토리 빈을 사용하여 다이내믹 프록시를 빈으로 등록하는 과정
     @Bean
-    public UserService userService(){
-        return new UserServiceTx(transactionManager(), userServiceImpl());
+    public TxProxyFactoryBean userService() {
+        Object target = userServiceImpl();
+        PlatformTransactionManager transactionManager = transactionManager();
+        String pattern = "upgradeLevel";
+        Class<?> serviceInterface = UserService.class;
+        return new TxProxyFactoryBean(target, transactionManager, pattern, serviceInterface);
     }
 
     @Bean

@@ -3,6 +3,7 @@ package org.spring.ch6.transaction;
 import org.spring.ch6.reflect.Hello;
 import org.spring.ch6.reflect.HelloTarget;
 import org.spring.ch6.reflect.UppercaseHandler;
+import org.spring.ch6.transaction.factoryBean.TxProxyFactoryBean;
 import org.spring.ch6.transaction.userService.UserService;
 import org.spring.ch6.transaction.userService.UserServiceImpl;
 import org.spring.ch6.transaction.userService.UserServiceTx;
@@ -24,19 +25,20 @@ import java.lang.reflect.Proxy;
 @ComponentScan(basePackages = "org.spring.ch6.transaction")
 @PropertySource({"classpath:ch5/application.properties"})
 public class AppConfig {
+//    @Bean
+//    public UserService userService(){
+//        return new UserServiceTx(transactionManager(), userServiceImpl());
+//    }
 
+    // 팩토리 빈을 사용하여 다이내믹 프록시를 빈으로 등록하는 과정
     @Bean
-    public Hello proxy(){
-        return (Hello) Proxy.newProxyInstance(
-                getClass().getClassLoader(),
-                new Class[]{Hello.class},
-                new UppercaseHandler(new HelloTarget())
-        );
-    }
+    public TxProxyFactoryBean userService() {
+        Object target = userServiceImpl();
+        PlatformTransactionManager transactionManager = transactionManager();
+        String pattern = "upgradeLevel";
+        Class<?> serviceInterface = UserService.class;
 
-    @Bean
-    public UserService userService(){
-        return new UserServiceTx(transactionManager(), userServiceImpl());
+        return new TxProxyFactoryBean(target, transactionManager, pattern, serviceInterface);
     }
 
     @Bean

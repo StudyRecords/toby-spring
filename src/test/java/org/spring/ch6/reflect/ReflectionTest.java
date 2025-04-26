@@ -1,14 +1,21 @@
 package org.spring.ch6.reflect;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
-import org.spring.ch6.transaction.TransactionHandler;
+import org.springframework.aop.framework.ProxyFactoryBean;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Locale;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReflectionTest {
+
+    // ======================== JDK 다이내믹 프록시 생성 ========================
+
     @Test
     public void invokeMethod() throws Exception {
         String name = "lyouxsun";
@@ -46,6 +53,33 @@ public class ReflectionTest {
         assertThat(proxiedHello.sayHello("lyouxsun")).isEqualTo("HELLO LYOUXSUN");
         assertThat(proxiedHello.sayHi("lyouxsun")).isEqualTo("HI LYOUXSUN");
         assertThat(proxiedHello.sayThankYou("lyouxsun")).isEqualTo("THANK YOU LYOUXSUN");
+    }
+
+    // ======================== 스프링 ProxyFactoryBean을 이용한 다이내믹 프록시 테스트 ========================
+    @Test
+    public void simpleSpringProxy() {
+        // given
+        ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
+        proxyFactoryBean.setTarget(new HelloTarget());          // 타깃 설정
+        proxyFactoryBean.addAdvice(new UppercaseAdvice());      // 부가기능을 담은 어드바이스를 추가
+
+        // when
+        Hello proxiedHello = (Hello) proxyFactoryBean.getObject();
+
+        // then
+        assertThat(proxiedHello.sayHello("lyouxsun")).isEqualTo("HELLO LYOUXSUN");
+        assertThat(proxiedHello.sayHi("lyouxsun")).isEqualTo("HI LYOUXSUN");
+        assertThat(proxiedHello.sayThankYou("LYOuxSUN")).isEqualTo("THANK YOU LYOUXSUN");
+    }
+
+    static class UppercaseAdvice implements MethodInterceptor {
+
+        @Override
+        public Object invoke(MethodInvocation invocation) throws Throwable {
+            String result = (String) invocation.proceed();              // 위임부분 : MethodInvocation은 메서드 정보와 타깃 오브젝트를 알고 있으므로
+                                                                        // 메서드 실행 시 타깃 오브젝트를 전달할 필요가 없다.
+            return Objects.requireNonNull(result).toUpperCase();        // 부가기능 적용
+        }
     }
 
 }
