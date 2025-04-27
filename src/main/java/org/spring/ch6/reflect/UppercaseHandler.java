@@ -9,6 +9,9 @@ public class UppercaseHandler implements InvocationHandler {
     // 타겟 오브젝트가 필요하므로 미리 주입해둔다!
     Object target;
 
+    public UppercaseHandler() {
+    }
+
     public UppercaseHandler(Object target) {
         this.target = target;
     }
