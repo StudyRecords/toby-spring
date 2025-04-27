@@ -1,11 +1,11 @@
 package org.spring.ch6.transaction;
 
-import org.spring.ch6.transaction.factoryBean.TxProxyFactoryBean;
+import org.spring.ch6.proxyFactoryBean.TestUserServiceImpl;
+import org.spring.ch6.transaction.aop.NameMatchClassMethodPointcut;
 import org.spring.ch6.transaction.proxyFactoryBean.TransactionAdvice;
-import org.spring.ch6.transaction.userService.UserService;
 import org.spring.ch6.transaction.userService.UserServiceImpl;
-import org.spring.ch6.transaction.userService.UserServiceTx;
 import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.NameMatchMethodPointcut;
 import org.springframework.context.annotation.Bean;
@@ -44,23 +44,23 @@ public class TestConfig {
 
 
     // v3. 스프링의 ProxyFactoryBean 적용하기 => 어노테이션으로 빈 등록했기 때문에 여기서는 주석처리함
-    @Bean
-    public ProxyFactoryBean userService() {
-        ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
-        proxyFactoryBean.setTarget(userServiceImpl());
-        proxyFactoryBean.setInterceptorNames("transactionAdvisor");     // 이 메서드를 사용하면 어드바이스와 어드바이저를 모두 설정(추가)할 수 있다. 빈의 아이디를 String으로 나열하면 된다.
-        return proxyFactoryBean;
-    }
+//    @Bean
+//    public ProxyFactoryBean userService() {
+//        ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
+//        proxyFactoryBean.setTarget(userServiceImpl());
+//        proxyFactoryBean.setInterceptorNames("transactionAdvisor");     // 이 메서드를 사용하면 어드바이스와 어드바이저를 모두 설정(추가)할 수 있다. 빈의 아이디를 String으로 나열하면 된다.
+//        return proxyFactoryBean;
+//    }
 
     // 포인트컷을 빈으로 등록
-    @Bean
-    public NameMatchMethodPointcut transactionPointcut() {
-        NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
-        pointcut.setMappedName("upgrade*");
-        return pointcut;
-    }
+//    @Bean
+//    public NameMatchMethodPointcut transactionPointcut() {
+//        NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+//        pointcut.setMappedName("upgrade*");
+//        return pointcut;
+//    }
 
-    // 어드바이저를 빈으로 등록 (어드바이스오 포인트컷은 어드바이저의 생성자로 넣어도 되고, set을 통해 DI 해도 된다.)
+    // 어드바이저를 빈으로 등록 (어드바이스와 포인트컷은 어드바이저의 생성자로 넣어도 되고, set을 통해 DI 해도 된다.)
     @Bean
     public DefaultPointcutAdvisor transactionAdvisor(TransactionAdvice transactionAdvice) {
         DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor();
@@ -69,10 +69,10 @@ public class TestConfig {
         return pointcutAdvisor;
     }
 
-    @Bean
-    public UserServiceImpl userServiceImpl() {
-        return new UserServiceImpl(userDao(), mailSender());
-    }
+//    @Bean
+//    public UserServiceImpl userServiceImpl() {
+//        return new UserServiceImpl(userDao(), mailSender());
+//    }
 
     @Bean
     public MailSender mailSender() {
@@ -102,5 +102,34 @@ public class TestConfig {
         dataSource.setUsername("sa");
         dataSource.setPassword("");
         return dataSource;
+    }
+
+    // v4. 빈후처리기 적용해서 프록시가 자동 생성 & 자동 빈등록 되게 만들기
+    @Bean
+    public DefaultAdvisorAutoProxyCreator autoProxyCreator() {
+        // 사실 다른 빈에서 참조되거나 조회되지 않고 혼자서도 스스로 빈으로 잘 활동하기 때문에 id는 아무거나 해도 상관없다.
+        return new DefaultAdvisorAutoProxyCreator();
+    }
+
+    // 포인트컷을 빈으로 등록하기
+    @Bean
+    public NameMatchMethodPointcut transactionPointcut() {
+        NameMatchClassMethodPointcut classMethodPointcut = new NameMatchClassMethodPointcut();
+        classMethodPointcut.setMappedClassName("*ServiceImpl");     // 클래스 이름 패턴
+        classMethodPointcut.setMappedName("upgrade*");      // 메서드 이름 패턴
+        return classMethodPointcut;
+    }
+
+    // v4. 이제 프록시 객체가 동적으로 빈으로 자동등록되니까 프록시를 직접 빈으로 등록하지 않아도 된다.
+    // 그러니까 타깃 오브젝트를 id="userService"로 설정해도 무관하다.
+    @Bean
+    public UserServiceImpl userService() {
+        return new UserServiceImpl(userDao(), mailSender());
+    }
+
+    // v4. 트랜잭션 롤백을 테스트하려면 얘를 빈으로 등록해야 한다.
+    @Bean
+    public TestUserServiceImpl testUserService() {
+        return new TestUserServiceImpl(userDao(), mailSender());
     }
 }

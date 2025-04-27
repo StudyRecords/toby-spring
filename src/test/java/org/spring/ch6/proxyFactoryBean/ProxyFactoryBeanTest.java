@@ -10,13 +10,10 @@ import org.spring.ch6.transaction.TestConfig;
 import org.spring.ch6.transaction.User;
 import org.spring.ch6.transaction.UserDao;
 import org.spring.ch6.transaction.userService.UserService;
-import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.MailSender;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,22 +21,19 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.spring.ch6.transaction.Level.*;
-import static org.spring.ch6.transaction.UserServiceTest.TestUserService;
 import static org.spring.ch6.transaction.UserServiceTest.TestUserServiceException;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)          // 각 테스트 메서드간 테스트 인스턴스 공유
 public class ProxyFactoryBeanTest {
+    //    @Autowired
+//    private UserService userService;            // applicationContext.getBean("&userService") 의 반환값은 ProxyFactoryBean 객체이다.
     @Autowired
-    private ProxyFactoryBean factoryBean;            // applicationContext.getBean("&userService") 의 반환값은 ProxyFactoryBean 객체이다.
+    private UserService testUserService;
     private List<User> users;
     @Autowired
     private UserDao userDao;
-    @Autowired
-    private PlatformTransactionManager transactionManager;
-    @Autowired
-    private MailSender mailSender;
 
     @BeforeEach
     void init() {
@@ -56,19 +50,18 @@ public class ProxyFactoryBeanTest {
     @Test
     @DirtiesContext
     public void upgradeAllOrNothing() throws Exception {
-        TestUserService testUserService = new TestUserService(users.get(3).getId(),
-                userDao, transactionManager, mailSender);
-
-        factoryBean.setTarget(testUserService);
-        UserService userService = (UserService) factoryBean.getObject();        // 타깃 오브젝트 변경 후 다이내믹 프록시 오브젝트 다시 생성
-
         // when
         for (User user : users) {
             userDao.add(user);
         }
 
         // then
-        assertThrows(TestUserServiceException.class, userService::upgradeLevels);
+        assertThrows(TestUserServiceException.class, testUserService::upgradeLevels);
+//        System.out.println(users.get(0).getLevel());
+//        System.out.println(users.get(1).getLevel());
+//        System.out.println(users.get(2).getLevel());
+//        System.out.println(users.get(3).getLevel());
+//        System.out.println(users.get(4).getLevel());
         checkLevel(users.get(1), BASIC);
     }
 
