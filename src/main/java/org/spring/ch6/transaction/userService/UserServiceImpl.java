@@ -10,7 +10,6 @@ import org.springframework.mail.SimpleMailMessage;
 
 import java.util.List;
 
-
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
