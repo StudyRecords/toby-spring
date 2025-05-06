@@ -7,9 +7,11 @@ import org.spring.ch6.transaction.UserDao;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
@@ -49,6 +51,31 @@ public class UserServiceImpl implements UserService {
 
     public void add(User user) {
         userDao.add(user);
+    }
+
+    @Override
+    public User getById(String id) {
+        return userDao.getById(id);
+    }
+
+    @Override
+    public List<User> getAll() {
+        return userDao.getAll();
+    }
+
+    @Override
+    public void deleteAll() {
+        userDao.deleteAll();
+    }
+
+    @Override
+    public int getCount() {
+        return userDao.getCount();
+    }
+
+    @Override
+    public void update(User user) {
+        userDao.update(user);
     }
 
     private void sendUpgradeMail(User user) {

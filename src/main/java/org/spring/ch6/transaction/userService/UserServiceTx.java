@@ -7,6 +7,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import java.util.List;
+
 @AllArgsConstructor
 public class UserServiceTx implements UserService {
 
@@ -38,6 +40,31 @@ public class UserServiceTx implements UserService {
     @Override
     public void add(User user) {
         this.userService.add(user);
+    }
+
+    @Override
+    public User getById(String id) {
+        return userService.getById(id);
+    }
+
+    @Override
+    public List<User> getAll() {
+        return userService.getAll();
+    }
+
+    @Override
+    public void deleteAll() {
+        userService.deleteAll();
+    }
+
+    @Override
+    public int getCount() {
+        return userService.getCount();
+    }
+
+    @Override
+    public void update(User user) {
+        userService.update(user);
     }
 
 }

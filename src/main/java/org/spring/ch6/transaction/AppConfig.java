@@ -1,8 +1,7 @@
 package org.spring.ch6.transaction;
 
 import org.spring.ch6.transaction.aop.NameMatchClassMethodPointcut;
-import org.spring.ch6.transaction.proxyFactoryBean.TransactionAdvice;
-import org.spring.ch6.transaction.userService.UserServiceImpl;
+import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.NameMatchMethodPointcut;
@@ -17,16 +16,17 @@ import org.springframework.mail.MailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.interceptor.NameMatchTransactionAttributeSource;
 import org.springframework.transaction.interceptor.RuleBasedTransactionAttribute;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 @Configuration
 @ComponentScan(basePackages = "org.spring.ch6.transaction")
 @PropertySource({"classpath:ch5/application.properties"})
+@EnableTransactionManagement
 public class AppConfig {
     // v1. JDK의 다이내믹 프록시 생성
 //    @Bean
@@ -79,13 +79,13 @@ public class AppConfig {
     }
 
     // 포인트컷을 빈으로 등록하기
-    @Bean
-    public NameMatchMethodPointcut transactionPointcut() {
-        NameMatchClassMethodPointcut classMethodPointcut = new NameMatchClassMethodPointcut();
-        classMethodPointcut.setMappedClassName("*ServiceImpl");     // 클래스 이름 패턴
-        classMethodPointcut.setMappedName("upgrade*");      // 메서드 이름 패턴
-        return classMethodPointcut;
-    }
+//    @Bean
+//    public NameMatchMethodPointcut transactionPointcut() {
+//        NameMatchClassMethodPointcut classMethodPointcut = new NameMatchClassMethodPointcut();
+//        classMethodPointcut.setMappedClassName("*Service");     // 클래스 이름 패턴
+//        classMethodPointcut.setMappedName("upgrade*");      // 메서드 이름 패턴
+//        return classMethodPointcut;
+//    }
 
 // v1 ~ v3. 팩토리빈(프록시)이 id = "userService" 로 등록되어 있었기 때문에 타깃 오브젝트는 구분하기 위해서 "userServiceImpl"로 등록해야 했다.
 //    @Bean
@@ -95,10 +95,10 @@ public class AppConfig {
 
     // v4. 이제 프록시 객체가 동적으로 빈으로 자동등록되니까 프록시를 직접 빈으로 등록하지 않아도 된다.
     // 그러니까 타깃 오브젝트를 id="userService"로 설정해도 무관하다.
-    @Bean
-    public UserServiceImpl userService() {
-        return new UserServiceImpl(userDao(), mailSender());
-    }
+//    @Bean
+//    public UserServiceImpl userService() {
+//        return new UserServiceImpl(userDao(), mailSender());
+//    }
 
     // v5. TransactionAdvice 대신 스프링에서 제공하는 TransactionInterceptor 사용하기
     public TransactionInterceptor transactionAdvice() {
@@ -109,13 +109,12 @@ public class AppConfig {
         RuleBasedTransactionAttribute readOnlyAttribute = new RuleBasedTransactionAttribute();
         readOnlyAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
         readOnlyAttribute.setReadOnly(true);
-        readOnlyAttribute.setTimeout(30);
         source.addTransactionalMethod("get*", readOnlyAttribute);
 
-        RuleBasedTransactionAttribute upgradeAttribute = new RuleBasedTransactionAttribute();
-        upgradeAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-        upgradeAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
-        source.addTransactionalMethod("upgrade*", upgradeAttribute);
+//        RuleBasedTransactionAttribute upgradeAttribute = new RuleBasedTransactionAttribute();
+//        upgradeAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+//        upgradeAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
+//        source.addTransactionalMethod("upgrade*", upgradeAttribute);
 
         RuleBasedTransactionAttribute defaultAttribute = new RuleBasedTransactionAttribute();
         defaultAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
@@ -124,6 +123,14 @@ public class AppConfig {
         transactionInterceptor.setTransactionAttributeSource(source);
 
         return transactionInterceptor;
+    }
+
+    // v6. AspectJ 포인트컷 표현식으로 포인트컷 등록하기
+    @Bean
+    public AspectJExpressionPointcut transactionPointcut() {
+        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+        pointcut.setExpression("bean(*Service)");       // 이름이 Service로 끝나는 모든 빈에 트랜잭션 부가기능이 적용된다.
+        return pointcut;
     }
 
     @Bean
