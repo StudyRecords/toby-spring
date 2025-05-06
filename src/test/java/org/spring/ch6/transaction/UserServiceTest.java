@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.spring.ch6.proxyFactoryBean.TestUserServiceImpl;
 import org.spring.ch6.transaction.userService.UserService;
 import org.spring.ch6.transaction.userService.UserServiceImpl;
 import org.spring.ch6.transaction.userService.UserServiceTx;
@@ -40,6 +41,8 @@ public class UserServiceTest {
     private PlatformTransactionManager transactionManager;
     @Autowired
     private MailSender mailSender;
+    @Autowired
+    private TestUserServiceImpl testUserService;
 
     @BeforeEach
     void init() {
@@ -150,6 +153,14 @@ public class UserServiceTest {
                 throw new TestUserServiceException();
             }
             super.upgradeLevel(user);
+        }
+
+        @Override
+        public List<User> getAll() {
+            for (User user : super.getAll()) {
+                super.update(user);
+            }
+            return null;
         }
     }
 

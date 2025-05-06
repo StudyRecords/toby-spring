@@ -27,6 +27,9 @@ dependencies {
     implementation 'org.springframework:spring-aop:6.1.2'
     testImplementation 'org.mockito:mockito-core:5.12.0'
 
+    // aspectJ 포인트컷 표현식
+    implementation 'org.aspectj:aspectjweaver:1.9.21'
+
     // Spring Test 라이브러리
     testImplementation 'org.springframework:spring-test:5.3.30'
 }
