@@ -63,13 +63,13 @@ public class AppConfig {
 //    }
 
     // 어드바이저를 빈으로 등록 (어드바이스오 포인트컷은 어드바이저의 생성자로 넣어도 되고, set을 통해 DI 해도 된다.)
-    @Bean
-    public DefaultPointcutAdvisor transactionAdvisor() {
-        DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor();
-        pointcutAdvisor.setAdvice(transactionAdvice());
-        pointcutAdvisor.setPointcut(transactionPointcut());
-        return pointcutAdvisor;
-    }
+//    @Bean
+//    public DefaultPointcutAdvisor transactionAdvisor() {
+//        DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor();
+//        pointcutAdvisor.setAdvice(transactionAdvice());
+////        pointcutAdvisor.setPointcut(transactionPointcut());
+//        return pointcutAdvisor;
+//    }
 
     // v4. 빈후처리기 적용해서 프록시가 자동 생성 & 자동 빈등록 되게 만들기
     @Bean
@@ -101,37 +101,37 @@ public class AppConfig {
 //    }
 
     // v5. TransactionAdvice 대신 스프링에서 제공하는 TransactionInterceptor 사용하기
-    public TransactionInterceptor transactionAdvice() {
-        TransactionInterceptor transactionInterceptor = new TransactionInterceptor();
-        transactionInterceptor.setTransactionManager(transactionManager());
-        NameMatchTransactionAttributeSource source = new NameMatchTransactionAttributeSource();
-
-        RuleBasedTransactionAttribute readOnlyAttribute = new RuleBasedTransactionAttribute();
-        readOnlyAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-        readOnlyAttribute.setReadOnly(true);
-        source.addTransactionalMethod("get*", readOnlyAttribute);
-
-//        RuleBasedTransactionAttribute upgradeAttribute = new RuleBasedTransactionAttribute();
-//        upgradeAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-//        upgradeAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
-//        source.addTransactionalMethod("upgrade*", upgradeAttribute);
-
-        RuleBasedTransactionAttribute defaultAttribute = new RuleBasedTransactionAttribute();
-        defaultAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-        source.addTransactionalMethod("*", defaultAttribute);
-
-        transactionInterceptor.setTransactionAttributeSource(source);
-
-        return transactionInterceptor;
-    }
+//    public TransactionInterceptor transactionAdvice() {
+//        TransactionInterceptor transactionInterceptor = new TransactionInterceptor();
+//        transactionInterceptor.setTransactionManager(transactionManager());
+//        NameMatchTransactionAttributeSource source = new NameMatchTransactionAttributeSource();
+//
+//        RuleBasedTransactionAttribute readOnlyAttribute = new RuleBasedTransactionAttribute();
+//        readOnlyAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+//        readOnlyAttribute.setReadOnly(true);
+//        source.addTransactionalMethod("get*", readOnlyAttribute);
+//
+////        RuleBasedTransactionAttribute upgradeAttribute = new RuleBasedTransactionAttribute();
+////        upgradeAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+////        upgradeAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
+////        source.addTransactionalMethod("upgrade*", upgradeAttribute);
+//
+//        RuleBasedTransactionAttribute defaultAttribute = new RuleBasedTransactionAttribute();
+//        defaultAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+//        source.addTransactionalMethod("*", defaultAttribute);
+//
+//        transactionInterceptor.setTransactionAttributeSource(source);
+//
+//        return transactionInterceptor;
+//    }
 
     // v6. AspectJ 포인트컷 표현식으로 포인트컷 등록하기
-    @Bean
-    public AspectJExpressionPointcut transactionPointcut() {
-        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
-        pointcut.setExpression("bean(*Service)");       // 이름이 Service로 끝나는 모든 빈에 트랜잭션 부가기능이 적용된다.
-        return pointcut;
-    }
+//    @Bean
+//    public AspectJExpressionPointcut transactionPointcut() {
+//        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+//        pointcut.setExpression("bean(*Service)");       // 이름이 Service로 끝나는 모든 빈에 트랜잭션 부가기능이 적용된다.
+//        return pointcut;
+//    }
 
     @Bean
     public MailSender mailSender() {
