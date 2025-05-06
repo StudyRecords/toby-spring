@@ -8,7 +8,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-@Service
+//@Service
 @RequiredArgsConstructor
 public class TransactionAdvice implements MethodInterceptor {
     private final PlatformTransactionManager transactionManager;

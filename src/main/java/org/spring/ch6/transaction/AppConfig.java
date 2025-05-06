@@ -16,8 +16,13 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.interceptor.NameMatchTransactionAttributeSource;
+import org.springframework.transaction.interceptor.RuleBasedTransactionAttribute;
+import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @ComponentScan(basePackages = "org.spring.ch6.transaction")
@@ -59,9 +64,9 @@ public class AppConfig {
 
     // 어드바이저를 빈으로 등록 (어드바이스오 포인트컷은 어드바이저의 생성자로 넣어도 되고, set을 통해 DI 해도 된다.)
     @Bean
-    public DefaultPointcutAdvisor transactionAdvisor(TransactionAdvice transactionAdvice) {
+    public DefaultPointcutAdvisor transactionAdvisor() {
         DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor();
-        pointcutAdvisor.setAdvice(transactionAdvice);
+        pointcutAdvisor.setAdvice(transactionAdvice());
         pointcutAdvisor.setPointcut(transactionPointcut());
         return pointcutAdvisor;
     }
@@ -93,6 +98,32 @@ public class AppConfig {
     @Bean
     public UserServiceImpl userService() {
         return new UserServiceImpl(userDao(), mailSender());
+    }
+
+    // v5. TransactionAdvice 대신 스프링에서 제공하는 TransactionInterceptor 사용하기
+    public TransactionInterceptor transactionAdvice() {
+        TransactionInterceptor transactionInterceptor = new TransactionInterceptor();
+        transactionInterceptor.setTransactionManager(transactionManager());
+        NameMatchTransactionAttributeSource source = new NameMatchTransactionAttributeSource();
+
+        RuleBasedTransactionAttribute readOnlyAttribute = new RuleBasedTransactionAttribute();
+        readOnlyAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        readOnlyAttribute.setReadOnly(true);
+        readOnlyAttribute.setTimeout(30);
+        source.addTransactionalMethod("get*", readOnlyAttribute);
+
+        RuleBasedTransactionAttribute upgradeAttribute = new RuleBasedTransactionAttribute();
+        upgradeAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        upgradeAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
+        source.addTransactionalMethod("upgrade*", upgradeAttribute);
+
+        RuleBasedTransactionAttribute defaultAttribute = new RuleBasedTransactionAttribute();
+        defaultAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        source.addTransactionalMethod("*", defaultAttribute);
+
+        transactionInterceptor.setTransactionAttributeSource(source);
+
+        return transactionInterceptor;
     }
 
     @Bean
